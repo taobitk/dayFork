@@ -134,7 +134,7 @@
 							name="money_amount"
 							bind:value={newOppMoney}
 							min="0"
-							step="10000"
+							step="1000"
 							class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500"
 						/>
 						<span class="text-xs text-slate-400 font-medium">đ</span>
@@ -307,8 +307,8 @@
 									type="number"
 									name="cost_time"
 									min="0"
-									step="15"
-									defaultValue={opp.time_minutes}
+									step="5"
+									value={opp.time_minutes}
 									placeholder="Tốn phút"
 									class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500"
 									title="Thời gian tiêu hao (phút)"
@@ -320,8 +320,8 @@
 									type="number"
 									name="cost_money"
 									min="0"
-									step="10000"
-									defaultValue={0}
+									step="1000"
+									value={0}
 									placeholder="Tiêu tiền"
 									class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500"
 									title="Tiền tiêu hao (VNĐ)"

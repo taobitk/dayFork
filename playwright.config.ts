@@ -1,6 +1,11 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-	webServer: { command: 'npm run build && npm run preview', port: 4173 },
-	testMatch: '**/*.e2e.{ts,js}'
+	testMatch: '**/*.e2e.{ts,js}',
+	timeout: 60000,
+	use: {
+		channel: 'chrome',
+		headless: true,
+		trace: 'on-first-retry'
+	}
 });
