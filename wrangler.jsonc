@@ -1,0 +1,15 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "dayfork",
+	"compatibility_date": "2026-11-03",
+	"compatibility_flags": ["nodejs_als"],
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "dayfork-db",
+			"database_id": "af641901-7407-496e-a6b3-83b7de45a770",
+			"migrations_dir": "migrations"
+		}
+	]
+}
