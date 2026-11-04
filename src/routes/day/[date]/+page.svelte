@@ -146,10 +146,10 @@
 							onclick={(e) => {
 								if (!confirm(`Xóa nhánh "${branch.name}"?`)) e.preventDefault();
 							}}
-							class="ml-1 cursor-pointer text-xs text-stone-400 hover:text-rose-600"
+							class="ml-1 cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
 							title="Xóa nhánh"
 						>
-							✕
+							🗑️
 						</button>
 					</form>
 				</div>
@@ -220,10 +220,10 @@
 									delForm.requestSubmit();
 								}
 							}}
-							class="ml-1 cursor-pointer text-xs text-stone-300 dark:text-zinc-600 hover:text-rose-500"
+							class="ml-1 cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
 							title="Xóa nhánh"
 						>
-							✕
+							🗑️
 						</button>
 					</div>
 				</div>
@@ -405,6 +405,24 @@
 				<span class="mx-1 text-stone-400 dark:text-zinc-500">|</span>
 				<span class="font-semibold text-stone-800 dark:text-zinc-200">{totalBranches}</span> nhánh
 			</div>
+
+			{#if totalOpportunities > 0}
+				<form method="POST" action="?/clearDay" use:enhance class="inline">
+					<button
+						type="submit"
+						onclick={(e) => {
+							if (!confirm(`Bạn có chắc muốn xóa tất cả ${totalOpportunities} cơ hội của ngày ${currentDate}?`)) {
+								e.preventDefault();
+							}
+						}}
+						class="cursor-pointer px-3 py-1.5 rounded-lg text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold border border-stone-200 dark:border-zinc-700 transition"
+						title="Xóa toàn bộ cơ hội trong ngày này"
+					>
+						🗑️ Dọn sạch ngày
+					</button>
+				</form>
+			{/if}
+
 			<a
 				href="/day/{currentDate}/review"
 				class="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
@@ -620,6 +638,25 @@
 									</span>
 								{/if}
 								<span class="px-1 text-xs text-stone-400 dark:text-zinc-500 hover:text-stone-800 dark:hover:text-zinc-200">▼</span>
+								<form method="POST" action="?/deleteOpportunity" use:enhance class="inline">
+									<input type="hidden" name="id" value={opp.id} />
+									<button
+										type="submit"
+										onclick={(e) => {
+											e.stopPropagation();
+											if (!confirm(`Xóa cơ hội "${opp.title}" và toàn bộ nhánh con?`)) {
+												e.preventDefault();
+											}
+										}}
+										onkeydown={(e) => {
+											e.stopPropagation();
+										}}
+										class="cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
+										title="Xóa cơ hội này"
+									>
+										🗑️
+									</button>
+								</form>
 							</div>
 						</div>
 					{:else}
@@ -644,11 +681,11 @@
 								<span class="pill-resource"
 									>{opp.time_minutes}p • {formatMoneyVi(opp.money_amount)}</span
 								>
-								<div class="flex items-center gap-3">
+								<div class="flex items-center gap-2">
 									<button
 										type="button"
 										onclick={() => toggleCollapse(opp.id)}
-										class="text-action-link cursor-pointer hover:text-stone-900 dark:hover:text-zinc-200"
+										class="text-action-link cursor-pointer hover:text-stone-900 dark:hover:text-zinc-200 mr-1"
 									>
 										Thu gọn ▲
 									</button>
@@ -661,10 +698,11 @@
 													e.preventDefault();
 												}
 											}}
-											class="cursor-pointer text-xs text-stone-400 dark:text-zinc-500 transition hover:text-rose-600"
+											class="cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center gap-1"
 											title="Xóa cơ hội này"
 										>
-											✕
+											<span>🗑️</span>
+											<span class="hidden sm:inline">Xóa</span>
 										</button>
 									</form>
 								</div>

@@ -1,7 +1,7 @@
-import { error, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { error, fail, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 import { isValidISODate, getTodayISO } from '#lib/date';
-import { getDayData } from '#lib/server/db';
+import { getDayData, deleteOpportunity, clearDay } from '#lib/server/db';
 import type { OpportunityComparison } from '#lib/types';
 
 export const load: PageServerLoad = async ({ params, platform }) => {
@@ -59,4 +59,23 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 		hasUnchosenOpps,
 		totalOpportunities: dayData.opportunities.length
 	};
+};
+
+export const actions: Actions = {
+	deleteOpportunity: async ({ request, platform }) => {
+		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
+
+		const formData = await request.formData();
+		const id = String(formData.get('id') || '');
+		if (!id) return fail(400, { message: 'ID cơ hội không được trống' });
+
+		await deleteOpportunity(platform.env.DB, id);
+		return { success: true };
+	},
+
+	clearDay: async ({ params, platform }) => {
+		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
+		await clearDay(platform.env.DB, params.date);
+		return { success: true };
+	}
 };

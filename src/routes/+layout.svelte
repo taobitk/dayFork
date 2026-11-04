@@ -3,11 +3,10 @@
 	import type { LayoutProps } from './$types';
 	import { page } from '$app/state';
 	import { theme } from '#lib/theme.svelte';
-	import { browser } from '$app/environment';
 
 	let { data, children }: LayoutProps = $props();
 
-	if (browser) {
+	if (typeof window !== 'undefined') {
 		theme.init();
 	}
 

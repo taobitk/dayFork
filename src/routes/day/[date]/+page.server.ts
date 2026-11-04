@@ -7,7 +7,8 @@ import {
 	deleteOpportunity,
 	createBranch,
 	deleteBranch,
-	chooseBranch
+	chooseBranch,
+	clearDay
 } from '#lib/server/db';
 import {
 	CreateOpportunitySchema,
@@ -121,6 +122,12 @@ export const actions: Actions = {
 		}
 
 		await chooseBranch(platform.env.DB, opportunity_id, branch_id);
+		return { success: true };
+	},
+
+	clearDay: async ({ params, platform }) => {
+		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
+		await clearDay(platform.env.DB, params.date);
 		return { success: true };
 	}
 };

@@ -170,7 +170,7 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await page.goto(todayUrl);
 		const cleanupBlock = page.locator('[id^="block-"]', { hasText: uniqueTitle });
 		page.on('dialog', (dialog) => dialog.accept());
-		await cleanupBlock.locator('button[title="Xóa cơ hội này"]').click();
+		await cleanupBlock.locator('button[title="Xóa cơ hội này"]').first().click();
 
 		await expect(page.locator(`text=${uniqueTitle}`)).toBeHidden({ timeout: 15000 });
 	});

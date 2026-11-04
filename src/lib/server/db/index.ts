@@ -127,6 +127,14 @@ export async function deleteOpportunity(db: D1Database, id: string): Promise<voi
 	}
 }
 
+export async function clearDay(db: D1Database, date: string): Promise<void> {
+	await db.batch([
+		db.prepare('DELETE FROM branches WHERE opportunity_id IN (SELECT id FROM opportunities WHERE date = ?)').bind(date),
+		db.prepare('DELETE FROM opportunities WHERE date = ?').bind(date),
+		db.prepare('DELETE FROM ai_paths WHERE date = ?').bind(date)
+	]);
+}
+
 export async function createBranch(
 	db: D1Database,
 	input: {

@@ -2,6 +2,7 @@
 	import type { PageProps } from './$types';
 	import { formatDateVi, formatMoneyVi, formatTimeVi, addDays } from '#lib/date';
 	import { invalidateAll } from '$app/navigation';
+	import { enhance } from '$app/forms';
 
 	let { data }: PageProps = $props();
 
@@ -67,6 +68,23 @@
 			>
 				✏️ Xem Timeline
 			</a>
+
+			{#if data.totalOpportunities > 0}
+				<form method="POST" action="?/clearDay" use:enhance class="inline">
+					<button
+						type="submit"
+						onclick={(e) => {
+							if (!confirm(`Bạn có chắc muốn xóa tất cả ${data.totalOpportunities} cơ hội của ngày ${currentDate}?`)) {
+								e.preventDefault();
+							}
+						}}
+						class="cursor-pointer px-3.5 py-2 rounded-xl text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold border border-stone-200 dark:border-zinc-700 transition"
+						title="Xóa toàn bộ cơ hội trong ngày này"
+					>
+						🗑️ Dọn sạch ngày
+					</button>
+				</form>
+			{/if}
 
 			<button
 				type="button"
@@ -149,8 +167,23 @@
 								</span>
 							{/if}
 						</div>
-						<div class="flex items-center gap-2 text-xs font-mono text-stone-600 dark:text-zinc-400">
+						<div class="flex items-center gap-2.5 text-xs font-mono text-stone-600 dark:text-zinc-400">
 							<span class="pill-resource">⏱ {comp.opportunity.time_minutes}p • 💵 {formatMoneyVi(comp.opportunity.money_amount)}</span>
+							<form method="POST" action="?/deleteOpportunity" use:enhance class="inline">
+								<input type="hidden" name="id" value={comp.opportunity.id} />
+								<button
+									type="submit"
+									onclick={(e) => {
+										if (!confirm(`Xóa cơ hội "${comp.opportunity.title}" và toàn bộ nhánh?`)) {
+											e.preventDefault();
+										}
+									}}
+									class="cursor-pointer p-1.5 rounded-lg text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition flex items-center justify-center"
+									title="Xóa cơ hội này"
+								>
+									<span class="text-xs">🗑️</span>
+								</button>
+							</form>
 						</div>
 					</div>
 
