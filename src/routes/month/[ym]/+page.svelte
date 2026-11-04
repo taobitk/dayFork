@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import { formatMoneyVi, formatTimeVi } from '#lib/date';
+	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
 	let { data }: PageProps = $props();
 
@@ -44,10 +45,10 @@
 		<div class="flex items-center gap-3">
 			<a
 				href="/month/{prevYm}"
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white cursor-pointer"
 				title="Tháng trước"
 			>
-				←
+				<ChevronLeft size={18} />
 			</a>
 			<div>
 				<h1 class="font-serif text-xl font-bold text-stone-900 dark:text-zinc-100">
@@ -57,10 +58,10 @@
 			</div>
 			<a
 				href="/month/{nextYm}"
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white cursor-pointer"
 				title="Tháng sau"
 			>
-				→
+				<ChevronRight size={18} />
 			</a>
 		</div>
 

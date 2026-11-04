@@ -3,6 +3,16 @@
 	import type { PageProps } from './$types';
 	import type { OpportunityWithBranches, Branch } from '#lib/types';
 	import { formatDateVi, formatMoneyVi, formatTimeVi, addDays } from '#lib/date';
+	import { confirmModal } from '#lib/confirm.svelte';
+	import {
+		ChevronLeft,
+		ChevronRight,
+		Trash2,
+		Plus,
+		Check,
+		ArrowRight,
+		Compass
+	} from 'lucide-svelte';
 
 	let { data, form }: PageProps = $props();
 
@@ -14,6 +24,45 @@
 
 	let totalOpportunities = $derived(opportunities.length);
 	let totalBranches = $derived(opportunities.reduce((acc, o) => acc + o.branches.length, 0));
+
+	async function handleDeleteOpportunity(id: string, title: string) {
+		const ok = await confirmModal({
+			title: 'Xóa cơ hội này?',
+			message: `Cơ hội "${title}" và toàn bộ nhánh con sẽ bị xóa vĩnh viễn.`,
+			confirmText: 'Xóa bỏ',
+			variant: 'danger'
+		});
+		if (ok) {
+			const delForm = document.getElementById(`del-opp-form-${id}`) as HTMLFormElement;
+			delForm?.requestSubmit();
+		}
+	}
+
+	async function handleDeleteBranch(id: string, name: string) {
+		const ok = await confirmModal({
+			title: 'Xóa nhánh này?',
+			message: `Nhánh "${name}" sẽ bị xóa khỏi cơ hội.`,
+			confirmText: 'Xóa bỏ',
+			variant: 'danger'
+		});
+		if (ok) {
+			const delForm = document.getElementById(`del-branch-${id}`) as HTMLFormElement;
+			delForm?.requestSubmit();
+		}
+	}
+
+	async function handleClearDay() {
+		const ok = await confirmModal({
+			title: 'Dọn sạch ngày?',
+			message: `Bạn có chắc muốn xóa tất cả ${totalOpportunities} cơ hội của ngày ${currentDate}? Hành động này không thể hoàn tác.`,
+			confirmText: 'Dọn sạch tất cả',
+			variant: 'danger'
+		});
+		if (ok) {
+			const delForm = document.getElementById('clear-day-page-form') as HTMLFormElement;
+			delForm?.requestSubmit();
+		}
+	}
 
 	// Optimistic selection map: oppId -> branchId (0ms instant UI update)
 	let optimisticChosen = $state<Record<string, string>>({});
@@ -113,7 +162,9 @@
 			<div class="note-badge-tag">THỰC TẾ</div>
 
 			<div class="note-header-row">
-				<div class="note-icon-circle">✓</div>
+				<div class="note-icon-circle flex items-center justify-center">
+					<Check size={13} strokeWidth={3} />
+				</div>
 				<div class="note-title-text">{branch.name}</div>
 			</div>
 
@@ -139,18 +190,16 @@
 						</span>
 					{/if}
 
-					<form method="POST" action="?/deleteBranch" use:enhance class="inline">
+					<button
+						type="button"
+						onclick={() => handleDeleteBranch(branch.id, branch.name)}
+						class="ml-1 cursor-pointer p-1.5 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
+						title="Xóa nhánh"
+					>
+						<Trash2 size={13} />
+					</button>
+					<form id="del-branch-{branch.id}" method="POST" action="?/deleteBranch" use:enhance class="hidden">
 						<input type="hidden" name="id" value={branch.id} />
-						<button
-							type="submit"
-							onclick={(e) => {
-								if (!confirm(`Xóa nhánh "${branch.name}"?`)) e.preventDefault();
-							}}
-							class="ml-1 cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
-							title="Xóa nhánh"
-						>
-							🗑️
-						</button>
 					</form>
 				</div>
 			</div>
@@ -213,17 +262,12 @@
 							type="button"
 							onclick={(e) => {
 								e.stopPropagation();
-								const delForm = document.getElementById(
-									`del-branch-${branch.id}`
-								) as HTMLFormElement;
-								if (delForm && confirm(`Xóa nhánh "${branch.name}"?`)) {
-									delForm.requestSubmit();
-								}
+								handleDeleteBranch(branch.id, branch.name);
 							}}
-							class="ml-1 cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
+							class="ml-1 cursor-pointer p-1.5 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
 							title="Xóa nhánh"
 						>
-							🗑️
+							<Trash2 size={13} />
 						</button>
 					</div>
 				</div>
@@ -376,10 +420,10 @@
 		<div class="flex items-center gap-3">
 			<a
 				href="/day/{prevDate}"
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white cursor-pointer"
 				title="Ngày trước"
 			>
-				←
+				<ChevronLeft size={18} />
 			</a>
 			<div>
 				<h1 class="flex items-center gap-2 font-serif text-xl font-bold text-stone-900 dark:text-zinc-100">
@@ -389,10 +433,10 @@
 			</div>
 			<a
 				href="/day/{nextDate}"
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white cursor-pointer"
 				title="Ngày sau"
 			>
-				→
+				<ChevronRight size={18} />
 			</a>
 		</div>
 
@@ -407,20 +451,16 @@
 			</div>
 
 			{#if totalOpportunities > 0}
-				<form method="POST" action="?/clearDay" use:enhance class="inline">
-					<button
-						type="submit"
-						onclick={(e) => {
-							if (!confirm(`Bạn có chắc muốn xóa tất cả ${totalOpportunities} cơ hội của ngày ${currentDate}?`)) {
-								e.preventDefault();
-							}
-						}}
-						class="cursor-pointer px-3 py-1.5 rounded-lg text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold border border-stone-200 dark:border-zinc-700 transition"
-						title="Xóa toàn bộ cơ hội trong ngày này"
-					>
-						🗑️ Dọn sạch ngày
-					</button>
-				</form>
+				<button
+					type="button"
+					onclick={handleClearDay}
+					class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold border border-stone-200 dark:border-zinc-700 transition"
+					title="Xóa toàn bộ cơ hội trong ngày này"
+				>
+					<Trash2 size={13} />
+					<span>Dọn sạch ngày</span>
+				</button>
+				<form id="clear-day-page-form" method="POST" action="?/clearDay" use:enhance class="hidden"></form>
 			{/if}
 
 			<a
@@ -428,7 +468,7 @@
 				class="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
 			>
 				<span>Xem Ngã Rẽ</span>
-				<span>→</span>
+				<ArrowRight size={15} />
 			</a>
 		</div>
 	</div>
@@ -445,7 +485,8 @@
 	<section class="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/90 p-4 shadow-sm sm:p-5">
 		<div class="mb-3 flex items-center justify-between">
 			<h2 class="flex items-center gap-2 text-xs font-bold tracking-wider text-stone-600 dark:text-zinc-300 uppercase">
-				<span>➕</span> Thêm Cơ Hội Mới
+				<Plus size={14} class="text-amber-600 dark:text-amber-400" />
+				<span>Thêm Cơ Hội Mới</span>
 			</h2>
 			<span class="text-xs text-stone-400 dark:text-zinc-500">Đặt bối cảnh + tài nguyên + ghi chú hoàn cảnh</span>
 		</div>
@@ -572,9 +613,10 @@
 			<div class="flex justify-end pt-1">
 				<button
 					type="submit"
-					class="cursor-pointer rounded-xl bg-stone-900 dark:bg-amber-600 px-5 py-2 text-xs font-semibold tracking-wide text-white shadow-sm transition hover:bg-stone-800 dark:hover:bg-amber-700"
+					class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-stone-900 dark:bg-amber-600 px-5 py-2 text-xs font-semibold tracking-wide text-white shadow-sm transition hover:bg-stone-800 dark:hover:bg-amber-700"
 				>
-					+ Ghim Cơ Hội
+					<Plus size={14} />
+					<span>Ghim Cơ Hội</span>
 				</button>
 			</div>
 		</form>
@@ -585,11 +627,11 @@
 		<div
 			class="rounded-2xl border border-dashed border-stone-300 dark:border-zinc-700 bg-white/60 dark:bg-zinc-800/40 p-12 text-center text-stone-400 dark:text-zinc-500"
 		>
-			<div class="mb-3 text-4xl">🌱</div>
-			<p class="font-serif text-base font-medium text-stone-700">
+			<Compass size={38} class="mx-auto mb-3 text-amber-600/70 dark:text-amber-400/70" />
+			<p class="font-serif text-base font-medium text-stone-700 dark:text-zinc-300">
 				Hôm nay chưa có cơ hội nào được ghi lại.
 			</p>
-			<p class="mt-1 text-xs text-stone-500">
+			<p class="mt-1 text-xs text-stone-500 dark:text-zinc-400">
 				Hãy bắt đầu bằng cách ghim một khoảng thời gian hoặc bối cảnh ở khung trên.
 			</p>
 		</div>
@@ -638,24 +680,19 @@
 									</span>
 								{/if}
 								<span class="px-1 text-xs text-stone-400 dark:text-zinc-500 hover:text-stone-800 dark:hover:text-zinc-200">▼</span>
-								<form method="POST" action="?/deleteOpportunity" use:enhance class="inline">
+								<button
+									type="button"
+									onclick={(e) => {
+										e.stopPropagation();
+										handleDeleteOpportunity(opp.id, opp.title);
+									}}
+									class="cursor-pointer p-1.5 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
+									title="Xóa cơ hội này"
+								>
+									<Trash2 size={13} />
+								</button>
+								<form id="del-opp-form-{opp.id}" method="POST" action="?/deleteOpportunity" use:enhance class="hidden">
 									<input type="hidden" name="id" value={opp.id} />
-									<button
-										type="submit"
-										onclick={(e) => {
-											e.stopPropagation();
-											if (!confirm(`Xóa cơ hội "${opp.title}" và toàn bộ nhánh con?`)) {
-												e.preventDefault();
-											}
-										}}
-										onkeydown={(e) => {
-											e.stopPropagation();
-										}}
-										class="cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center"
-										title="Xóa cơ hội này"
-									>
-										🗑️
-									</button>
 								</form>
 							</div>
 						</div>
@@ -689,21 +726,17 @@
 									>
 										Thu gọn ▲
 									</button>
-									<form method="POST" action="?/deleteOpportunity" use:enhance class="inline">
+									<button
+										type="button"
+										onclick={() => handleDeleteOpportunity(opp.id, opp.title)}
+										class="cursor-pointer p-1.5 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center gap-1.5"
+										title="Xóa cơ hội này"
+									>
+										<Trash2 size={13} />
+										<span class="hidden sm:inline font-medium">Xóa</span>
+									</button>
+									<form id="del-opp-form-{opp.id}" method="POST" action="?/deleteOpportunity" use:enhance class="hidden">
 										<input type="hidden" name="id" value={opp.id} />
-										<button
-											type="submit"
-											onclick={(e) => {
-												if (!confirm(`Xóa cơ hội "${opp.title}" và toàn bộ nhánh con?`)) {
-													e.preventDefault();
-												}
-											}}
-											class="cursor-pointer p-1 rounded-md text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-xs flex items-center gap-1"
-											title="Xóa cơ hội này"
-										>
-											<span>🗑️</span>
-											<span class="hidden sm:inline">Xóa</span>
-										</button>
 									</form>
 								</div>
 							</div>

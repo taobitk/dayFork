@@ -51,7 +51,7 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await page.fill('#opp-time', '90');
 		await page.fill('#opp-money', '50000');
 		await page.fill('#opp-other', contextNote);
-		await page.click('button[type="submit"]:has-text("+ Ghim Cơ Hội")');
+		await page.click('button[type="submit"]:has-text("Ghim Cơ Hội")');
 
 		// 3. Verify opportunity card appears with unified note design
 		const oppCard = page.locator('.opp-parent-card', { hasText: uniqueTitle });
@@ -166,11 +166,16 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await expect(page.locator('h1')).toContainText('Tháng');
 		await expect(page.locator('text=Lịch Hoạt Động Trong Tháng')).toBeVisible();
 
-		// 10. Clean up: go back to today and delete the test opportunity
+		// 10. Clean up: go back to today and delete the test opportunity using custom ConfirmDialog
 		await page.goto(todayUrl);
 		const cleanupBlock = page.locator('[id^="block-"]', { hasText: uniqueTitle });
-		page.on('dialog', (dialog) => dialog.accept());
 		await cleanupBlock.locator('button[title="Xóa cơ hội này"]').first().click();
+
+		// Verify custom DayFork ConfirmDialog appears
+		const confirmDialog = page.locator('div[role="dialog"]');
+		await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+		await expect(confirmDialog).toContainText('Xóa cơ hội này?');
+		await confirmDialog.locator('button:has-text("Xóa bỏ")').click();
 
 		await expect(page.locator(`text=${uniqueTitle}`)).toBeHidden({ timeout: 15000 });
 	});

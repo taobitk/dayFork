@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import { formatMoneyVi, formatTimeVi, addDays } from '#lib/date';
+	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
 	let { data }: PageProps = $props();
 
@@ -22,10 +23,10 @@
 		<div class="flex items-center gap-3">
 			<a
 				href="/week/{prevWeekDate}"
-				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition font-bold"
+				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition cursor-pointer"
 				title="Tuần trước"
 			>
-				←
+				<ChevronLeft size={18} />
 			</a>
 			<div>
 				<h1 class="text-xl font-bold text-stone-900 dark:text-zinc-100 font-serif">
@@ -35,10 +36,10 @@
 			</div>
 			<a
 				href="/week/{nextWeekDate}"
-				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition font-bold"
+				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition cursor-pointer"
 				title="Tuần sau"
 			>
-				→
+				<ChevronRight size={18} />
 			</a>
 		</div>
 

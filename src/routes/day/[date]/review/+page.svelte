@@ -3,6 +3,17 @@
 	import { formatDateVi, formatMoneyVi, formatTimeVi, addDays } from '#lib/date';
 	import { invalidateAll } from '$app/navigation';
 	import { enhance } from '$app/forms';
+	import { confirmModal } from '#lib/confirm.svelte';
+	import {
+		ChevronLeft,
+		ChevronRight,
+		Calendar,
+		Sparkles,
+		Trash2,
+		AlertCircle,
+		Check,
+		Loader2
+	} from 'lucide-svelte';
 
 	let { data }: PageProps = $props();
 
@@ -31,6 +42,32 @@
 			isGeneratingAi = false;
 		}
 	}
+
+	async function handleDeleteOpportunity(id: string, title: string) {
+		const ok = await confirmModal({
+			title: 'Xóa cơ hội này?',
+			message: `Cơ hội "${title}" và toàn bộ nhánh đối chiếu sẽ bị xóa vĩnh viễn.`,
+			confirmText: 'Xóa bỏ',
+			variant: 'danger'
+		});
+		if (ok) {
+			const form = document.getElementById(`del-opp-review-${id}`) as HTMLFormElement;
+			form?.requestSubmit();
+		}
+	}
+
+	async function handleClearDay() {
+		const ok = await confirmModal({
+			title: 'Dọn sạch toàn bộ ngày?',
+			message: `Bạn có chắc muốn xóa tất cả ${data.totalOpportunities} cơ hội của ngày ${currentDate}? Hành động này không thể hoàn tác.`,
+			confirmText: 'Dọn sạch tất cả',
+			variant: 'danger'
+		});
+		if (ok) {
+			const form = document.getElementById('clear-day-review-form') as HTMLFormElement;
+			form?.requestSubmit();
+		}
+	}
 </script>
 
 <div class="space-y-6 max-w-5xl mx-auto">
@@ -41,10 +78,10 @@
 		<div class="flex items-center gap-3">
 			<a
 				href="/day/{addDays(currentDate, -1)}/review"
-				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition font-bold"
+				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition cursor-pointer"
 				title="Ngày trước"
 			>
-				←
+				<ChevronLeft size={18} />
 			</a>
 			<div>
 				<h1 class="text-xl font-bold text-stone-900 dark:text-zinc-100 flex items-center gap-2 font-serif">
@@ -54,36 +91,33 @@
 			</div>
 			<a
 				href="/day/{addDays(currentDate, 1)}/review"
-				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition font-bold"
+				class="w-9 h-9 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 flex items-center justify-center text-stone-700 dark:text-zinc-200 hover:text-stone-900 dark:hover:text-white transition cursor-pointer"
 				title="Ngày sau"
 			>
-				→
+				<ChevronRight size={18} />
 			</a>
 		</div>
 
 		<div class="flex items-center gap-3 flex-wrap">
 			<a
 				href="/day/{currentDate}"
-				class="px-3.5 py-2 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 text-stone-700 dark:text-zinc-200 text-xs font-semibold border border-stone-200 dark:border-zinc-600 transition"
+				class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-100 dark:bg-zinc-700 hover:bg-stone-200 dark:hover:bg-zinc-600 text-stone-700 dark:text-zinc-200 text-xs font-semibold border border-stone-200 dark:border-zinc-600 transition"
 			>
-				✏️ Xem Timeline
+				<Calendar size={13} />
+				<span>Xem Timeline</span>
 			</a>
 
 			{#if data.totalOpportunities > 0}
-				<form method="POST" action="?/clearDay" use:enhance class="inline">
-					<button
-						type="submit"
-						onclick={(e) => {
-							if (!confirm(`Bạn có chắc muốn xóa tất cả ${data.totalOpportunities} cơ hội của ngày ${currentDate}?`)) {
-								e.preventDefault();
-							}
-						}}
-						class="cursor-pointer px-3.5 py-2 rounded-xl text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold border border-stone-200 dark:border-zinc-700 transition"
-						title="Xóa toàn bộ cơ hội trong ngày này"
-					>
-						🗑️ Dọn sạch ngày
-					</button>
-				</form>
+				<button
+					type="button"
+					onclick={handleClearDay}
+					class="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold border border-stone-200 dark:border-zinc-700 transition"
+					title="Xóa toàn bộ cơ hội trong ngày này"
+				>
+					<Trash2 size={13} />
+					<span>Dọn sạch ngày</span>
+				</button>
+				<form id="clear-day-review-form" method="POST" action="?/clearDay" use:enhance class="hidden"></form>
 			{/if}
 
 			<button
@@ -93,12 +127,14 @@
 				class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-semibold text-xs transition shadow-sm cursor-pointer"
 			>
 				{#if isGeneratingAi}
-					<span class="animate-spin">⏳</span>
+					<Loader2 size={14} class="animate-spin" />
 					<span>Đang suy ngẫm...</span>
 				{:else if aiPaths.best || aiPaths.comfort}
-					<span>✨ Tạo lại Phản tư AI</span>
+					<Sparkles size={14} />
+					<span>Tạo lại Phản tư AI</span>
 				{:else}
-					<span>✨ Kích hoạt Phản tư AI</span>
+					<Sparkles size={14} />
+					<span>Kích hoạt Phản tư AI</span>
 				{/if}
 			</button>
 		</div>
@@ -169,20 +205,16 @@
 						</div>
 						<div class="flex items-center gap-2.5 text-xs font-mono text-stone-600 dark:text-zinc-400">
 							<span class="pill-resource">⏱ {comp.opportunity.time_minutes}p • 💵 {formatMoneyVi(comp.opportunity.money_amount)}</span>
-							<form method="POST" action="?/deleteOpportunity" use:enhance class="inline">
+							<button
+								type="button"
+								onclick={() => handleDeleteOpportunity(comp.opportunity.id, comp.opportunity.title)}
+								class="cursor-pointer p-1.5 rounded-lg text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition flex items-center justify-center"
+								title="Xóa cơ hội này"
+							>
+								<Trash2 size={13} />
+							</button>
+							<form id="del-opp-review-{comp.opportunity.id}" method="POST" action="?/deleteOpportunity" use:enhance class="hidden">
 								<input type="hidden" name="id" value={comp.opportunity.id} />
-								<button
-									type="submit"
-									onclick={(e) => {
-										if (!confirm(`Xóa cơ hội "${comp.opportunity.title}" và toàn bộ nhánh?`)) {
-											e.preventDefault();
-										}
-									}}
-									class="cursor-pointer p-1.5 rounded-lg text-stone-400 dark:text-zinc-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition flex items-center justify-center"
-									title="Xóa cơ hội này"
-								>
-									<span class="text-xs">🗑️</span>
-								</button>
 							</form>
 						</div>
 					</div>
