@@ -51,18 +51,18 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await page.fill('#opp-time', '90');
 		await page.fill('#opp-money', '50000');
 		await page.fill('#opp-other', contextNote);
-		await page.click('button[type="submit"]:has-text("Ghim Cơ Hội")');
+		await page.click('button[type="submit"]:has-text("Ghim")');
 
 		// 3. Verify opportunity card appears with unified note design
 		const oppCard = page.locator('.opp-parent-card', { hasText: uniqueTitle });
 		await expect(oppCard).toBeVisible({ timeout: 15000 });
 		await expect(oppCard).toContainText('90p • 50.000 đ');
 		await expect(oppCard).toContainText(contextNote);
-		await expect(oppCard.locator('.note-badge-tag')).toContainText('CƠ HỘI #');
+		await expect(oppCard.locator('.note-badge-tag')).toContainText('#');
 
 		// 4. Add Branch 1: "Chạy bộ quanh hồ" via Ghost '+' Card
 		const oppBlock = page.locator('[id^="block-"]', { hasText: uniqueTitle });
-		await oppBlock.locator('button:has-text("+ Thêm nhánh")').click();
+		await oppBlock.locator('button.add-branch-ghost-card').click();
 		const addBranchForm1 = oppBlock.locator('form[action="?/addBranch"]');
 		await addBranchForm1.locator('input[name="name"]').fill('Chạy bộ quanh hồ');
 		await addBranchForm1.locator('input[name="cost_time"]').fill('45');
@@ -80,7 +80,7 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await page.waitForTimeout(500);
 
 		// 5. Add Branch 2: "Ngồi cà phê đọc sách" via Ghost '+' Card
-		await oppBlock.locator('button:has-text("+ Thêm nhánh")').click();
+		await oppBlock.locator('button.add-branch-ghost-card').click();
 		const addBranchForm2 = oppBlock.locator('form[action="?/addBranch"]');
 		await addBranchForm2.locator('input[name="name"]').fill('Ngồi cà phê đọc sách');
 		await addBranchForm2.locator('input[name="cost_time"]').fill('90');
@@ -113,7 +113,7 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await expect(branchesGrid).toHaveClass(/has-selection/);
 
 		// 6b. Add Branch 3 & Branch 4 to test multi-branch layout (Row 2 corridor)
-		await oppBlock.locator('button:has-text("+ Thêm nhánh")').click();
+		await oppBlock.locator('button.add-branch-ghost-card').click();
 		const addBranchForm3 = oppBlock.locator('form[action="?/addBranch"]');
 		await addBranchForm3.locator('input[name="name"]').fill('Xem phim tại nhà');
 		await addBranchForm3.locator('input[name="cost_time"]').fill('90');
@@ -131,9 +131,9 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await expect(wireTop.first()).toBeVisible();
 
 		// 7. Go to Ngã Rẽ review page
-		await page.click('a:has-text("Xem Ngã Rẽ")');
+		await page.click('a[title="Ngã Rẽ"]');
 		await expect(page).toHaveURL(/.*\/review/);
-		await expect(page.locator('h1')).toContainText('Ngã Rẽ Cuộc Sống');
+		await expect(page.locator('h1')).toContainText('Ngã Rẽ');
 
 		// Check Column 1 (Thực Tế) contains the chosen branch ("Xem phim tại nhà") and context note
 		const compCard = page.locator('.bg-white.rounded-2xl', { hasText: uniqueTitle });
@@ -144,15 +144,15 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await expect(compCard).toContainText('Thả Lỏng');
 
 		// 8. Trigger AI Paths Generation
-		const aiBtn = page.locator('button:has-text("Phản tư AI")');
+		const aiBtn = page.locator('button:has-text("AI")');
 		await aiBtn.click();
 
-		// Wait for AI spinner to settle (Groq LLM inference)
-		await expect(page.locator('button:has-text("suy ngẫm")')).toBeHidden({ timeout: 25000 });
+		// Wait for AI button to be enabled again
+		await expect(aiBtn).toBeEnabled({ timeout: 25000 });
 
 		// Verify Best and Comfort columns have proposals
-		await expect(compCard.locator('text=🟢 Hiệu Quả')).toBeVisible();
-		await expect(compCard.locator('text=🔵 Thả Lỏng')).toBeVisible();
+		await expect(compCard.getByText('Hiệu Quả', { exact: true }).first()).toBeVisible();
+		await expect(compCard.getByText('Thả Lỏng', { exact: true }).first()).toBeVisible();
 
 		// 9. Check Week & Month navigation
 		await page.click('header nav a:has-text("Tuần")');
