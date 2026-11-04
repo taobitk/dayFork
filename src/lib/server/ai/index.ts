@@ -27,7 +27,7 @@ function generateFallbackPaths(dayData: DayData): GeneratedPathsResult['paths'] 
 		bestSelections.push({
 			opportunity_id: opp.id,
 			branch_id: bestBranch.id,
-			reflection: `Nếu chọn ${bestBranch.name}, bạn sẽ tiết kiệm tài nguyên và giữ được sự tập trung kỷ luật.`
+			reflection: `Nếu chọn ${bestBranch.name}, bạn sẽ đạt hiệu quả tốt về tài nguyên và giữ được sự tập trung kỷ luật.`
 		});
 
 		// Comfort: prefer branch with lowest time cost or most relaxing feel
@@ -36,7 +36,7 @@ function generateFallbackPaths(dayData: DayData): GeneratedPathsResult['paths'] 
 		comfortSelections.push({
 			opportunity_id: opp.id,
 			branch_id: comfortBranch.id,
-			reflection: `Nếu chọn ${comfortBranch.name}, bạn sẽ có nhiều khoảng lặng để nạp lại năng lượng và cảm thấy dễ chịu.`
+			reflection: `Nếu chọn ${comfortBranch.name}, bạn sẽ có khoảng lặng thả lỏng để nạp lại năng lượng và cảm thấy dễ chịu.`
 		});
 	}
 
@@ -44,12 +44,12 @@ function generateFallbackPaths(dayData: DayData): GeneratedPathsResult['paths'] 
 		{
 			perspective: 'best',
 			branch_selections: bestSelections,
-			summary: 'Hành trình tối ưu kỷ luật, ưu tiên bảo toàn tài nguyên và duy trì sự cân bằng dài hạn.'
+			summary: 'Hành trình Hiệu Quả: Ưu tiên bảo toàn tài nguyên và duy trì sự kỷ luật cân bằng.'
 		},
 		{
 			perspective: 'comfort',
 			branch_selections: comfortSelections,
-			summary: 'Hành trình nhẹ nhàng, lắng nghe cảm xúc để bạn cảm thấy thảnh thơi và thoải mái nhất.'
+			summary: 'Hành trình Thả Lỏng: Lắng nghe cảm xúc để bạn cảm thấy thảnh thơi và dễ chịu nhất.'
 		}
 	];
 }
@@ -92,15 +92,17 @@ export async function generateDayPaths(
 						`    - ID: "${b.id}" | Tên: "${b.name}" | Tốn: ${b.cost_time} phút, ${b.cost_money} đ | Nhận lại: "${b.outcome || 'Không ghi'}"`
 				)
 				.join('\n');
-			return `Cơ hội ${idx + 1} (ID: "${opp.id}"): "${opp.title}" (Tài nguyên: ${opp.time_minutes} phút, ${opp.money_amount} đ)\n  Nhánh có thể chọn:\n${branchesText}`;
+			const contextNote = opp.other_text?.trim() ? ` | Ngữ cảnh/Ghi chú: "${opp.other_text.trim()}"` : '';
+			return `Cơ hội ${idx + 1} (ID: "${opp.id}"): "${opp.title}" (Tài nguyên: ${opp.time_minutes} phút, ${opp.money_amount} đ${contextNote})\n  Nhánh có thể chọn:\n${branchesText}`;
 		})
 		.join('\n\n');
 
-	const systemPrompt = `Bạn là cố vấn phản tư DayFork. Nhiệm vụ của bạn là xem xét các cơ hội và các nhánh lựa chọn của người dùng trong một ngày, sau đó dựng nên 2 HÀNH TRÌNH ĐỘC LẬP:
-1. "best" (Tối ưu nhất): Chọn nhánh mang lại giá trị tiến bộ, sức khỏe, tri thức hoặc tiết kiệm tài nguyên tốt nhất. Tránh sa đà.
-2. "comfort" (Thoải mái nhất): Chọn nhánh đem lại cảm xúc tích cực, giảm căng thẳng và thư giãn nhất.
+	const systemPrompt = `Bạn là cố vấn phản tư DayFork. Nhiệm vụ của bạn là xem xét các cơ hội và các nhánh lựa chọn của người dùng trong một ngày, sau đó dựng nên 2 GÓC NHÌN ĐỘC LẬP:
+1. "best" (Hiệu Quả): Góc nhìn tối ưu tài nguyên, sức khỏe, tri thức hoặc tiến độ công việc một cách sáng suốt.
+2. "comfort" (Thả Lỏng): Góc nhìn nâng đỡ tâm lý, giảm căng thẳng, ưu tiên sự thoải mái và nạp lại năng lượng.
 
 QUY TẮC BẮT BUỘC:
+- Nếu cơ hội có "Ngữ cảnh/Ghi chú" (ví dụ: đang mệt, trời mưa, tâm trạng chùng xuống...), hãy thấu hiểu hoàn cảnh thực tế để đưa ra lựa chọn và lời phản tư hợp lý nhất cho từng góc nhìn, tuyệt đối không chấm điểm, phán xét hay tự bịa đặt nhánh mới.
 - CHỈ ĐƯỢC CHỌN ID NHÁNH CÓ SẴN trong từng cơ hội (tuyệt đối không bịa ID hoặc tự đặt nhánh mới).
 - Mỗi cơ hội phải chọn đúng 1 nhánh.
 - Với mỗi nhánh được chọn, viết câu "reflection" ngắn (1-2 câu, bắt đầu bằng "Nếu chọn thì hôm đó tôi sẽ...").

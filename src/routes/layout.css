@@ -1,1 +1,271 @@
 @import 'tailwindcss';
+
+/* ======================================================== */
+/* DAYFORK PAPER MAP THEME & UNIFIED NOTE DESIGN            */
+/* ======================================================== */
+
+:root {
+	--bg-paper: #faf8f5;
+	--ink-text: #1c1917;
+	--ink-muted: #78716c;
+	--border-paper: #e7e5e4;
+	--color-actual: #d97706; /* Thực Tế (Amber) */
+	--color-best: #059669; /* Hiệu Quả (Emerald) */
+	--color-comfort: #0284c7; /* Thả Lỏng (Sky) */
+}
+
+body {
+	background-color: var(--bg-paper);
+	color: var(--ink-text);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* ======================================================== */
+/* KHUÔN NOTE ĐỒNG BỘ 100% THEO HÌNH 1 & HÌNH 3             */
+/* ======================================================== */
+.unified-note {
+	background: #ffffff;
+	border: 1.5px solid #e2e8f0;
+	border-radius: 14px;
+	padding: 14px 16px;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 8px;
+	transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.unified-note:hover {
+	border-color: #cbd5e1;
+	transform: translateY(-2px);
+}
+
+/* BADGE GHIM GÓC TRÊN */
+.note-badge-tag {
+	position: absolute;
+	top: -9px;
+	left: 14px;
+	font-size: 9px;
+	font-weight: 800;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	padding: 2px 8px;
+	border-radius: 8px;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	z-index: 4;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* THẺ CƠ HỘI MỞ RỘNG (HÌNH 1) */
+.opp-parent-card {
+	width: 100%;
+	max-width: 480px;
+	background: #ffffff;
+	border: 1.5px solid #c7d2fe;
+}
+.opp-parent-card .note-badge-tag {
+	background: #4f46e5;
+	color: #ffffff;
+}
+.opp-parent-card:hover {
+	border-color: #818cf8;
+	box-shadow: 0 6px 16px -2px rgba(99, 102, 241, 0.14);
+}
+
+/* THẺ CƠ HỘI THU GỌN (HÌNH 4: THANH NGANG GỌN GÀNG) */
+.opp-compact-bar {
+	width: 100%;
+	max-width: 580px;
+	background: #ffffff;
+	border: 1.5px solid #c7d2fe;
+	border-radius: 9999px;
+	padding: 6px 14px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	cursor: pointer;
+	box-shadow: 0 2px 6px -1px rgba(99, 102, 241, 0.08);
+	transition: all 0.2s ease;
+}
+.opp-compact-bar:hover {
+	border-color: #818cf8;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.15);
+}
+
+/* TRẠNG THÁI: NHÁNH ĐÃ CHỌN (THỰC TẾ) - HÌNH 3 */
+.branch-card.chosen {
+	background: #fffbeb !important;
+	border: 2.5px solid #d97706 !important;
+	opacity: 1 !important;
+	filter: none !important;
+	transform: scale(1.02);
+	box-shadow: 0 8px 24px -4px rgba(217, 119, 6, 0.25) !important;
+	z-index: 3;
+}
+.branch-card.chosen .note-badge-tag {
+	background: #d97706;
+	color: #ffffff;
+}
+
+/* LÀM MỜ CÁC NHÁNH KHÔNG CHỌN ĐỂ TRÁNH NHIỄU MẮT */
+.branches-grid.has-selection .branch-card:not(.chosen) {
+	opacity: 0.35;
+	filter: grayscale(40%);
+	background: #f8faf9;
+	transform: scale(0.98);
+	border-color: #e2e8f0;
+}
+.branches-grid.has-selection .branch-card:not(.chosen):hover {
+	opacity: 0.85;
+	filter: grayscale(0%);
+	transform: scale(1);
+	background: #ffffff;
+	border-color: #cbd5e1;
+}
+
+/* PHẦN TỬ BÊN TRONG CỦA NOTE */
+.note-header-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+.note-icon-circle {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: bold;
+	flex-shrink: 0;
+}
+.opp-parent-card .note-icon-circle {
+	background: #eef2ff;
+	color: #4f46e5;
+	border: 1.5px solid #c7d2fe;
+}
+.branch-card .note-icon-circle {
+	border: 2px solid #cbd5e1;
+	background: #ffffff;
+}
+.branch-card.chosen .note-icon-circle {
+	background: #d97706;
+	border-color: #d97706;
+	color: #ffffff;
+}
+
+.note-title-text {
+	font-size: 14px;
+	font-weight: 700;
+	color: #1c1917;
+	line-height: 1.35;
+}
+.branch-card.chosen .note-title-text {
+	color: #92400e;
+}
+.opp-parent-card .note-title-text {
+	color: #1e1b4b;
+}
+
+.note-subtitle-text {
+	font-size: 12px;
+	color: #78716c;
+	font-style: italic;
+	margin-left: 30px;
+}
+
+.note-dashed-divider {
+	border-top: 1px dashed #e2e8f0;
+	margin: 4px 0 0 0;
+}
+.branch-card.chosen .note-dashed-divider {
+	border-top-color: #fde68a;
+}
+
+.note-footer-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 11.5px;
+	padding-top: 2px;
+}
+.pill-resource {
+	background: #f1f5f9;
+	color: #475569;
+	padding: 2px 7px;
+	border-radius: 5px;
+	font-weight: 600;
+}
+.opp-parent-card .pill-resource {
+	background: #eef2ff;
+	color: #4338ca;
+}
+.pill-surplus {
+	background: #d1fae5;
+	color: #065f46;
+	padding: 2px 7px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+.text-action-link {
+	color: #64748b;
+	font-size: 11.5px;
+	font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.branch-card.chosen .text-action-link {
+	color: #d97706;
+	font-weight: 600;
+}
+
+/* ======================================================== */
+/* DÂY NỐI CHUYÊN DỤNG (SVG WIRE-BOX)                        */
+/* ======================================================== */
+.wire-box {
+	width: 100%;
+	height: 44px;
+	display: block;
+	overflow: visible;
+	position: relative;
+	pointer-events: none;
+}
+.wire-line {
+	fill: none;
+	stroke: #d97706;
+	stroke-width: 3.5;
+	stroke-linecap: round;
+	transition: d 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+	filter: drop-shadow(0 2px 4px rgba(217, 119, 6, 0.3));
+}
+.wire-dot {
+	fill: #d97706;
+	transition: cx 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.straight-stem-line {
+	width: 3px;
+	height: 32px;
+	background: #cbd5e1;
+	margin: 0 auto;
+	border-radius: 2px;
+}
+
+/* LƯỚI 3 NHÁNH SONG SONG (DESKTOP) / XẾP DỌC (MOBILE)      */
+.branches-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+	width: 100%;
+	position: relative;
+}
+@media (max-width: 768px) {
+	.branches-grid {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
+}

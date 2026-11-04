@@ -22,16 +22,16 @@
 	<meta name="description" content="Nhật ký ngã rẽ và các đường đi song song mỗi ngày" />
 </svelte:head>
 
-<div class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-200">
+<div class="min-h-screen bg-[#FAF8F5] text-[#1C1917] flex flex-col font-sans selection:bg-amber-500/20 selection:text-amber-900">
 	<!-- Header Navigation -->
-	<header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
-		<div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+	<header class="border-b border-[#E7E5E4] bg-[#FAF8F5]/90 backdrop-blur-md sticky top-0 z-40">
+		<div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
 			<!-- Logo -->
 			<a href="/day/{data.today}" class="flex items-center gap-2.5 font-bold text-lg tracking-tight hover:opacity-90 transition">
-				<div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20 font-black">
+				<div class="w-7 h-7 rounded-lg bg-amber-600 flex items-center justify-center text-white shadow-sm font-bold text-base">
 					⑂
 				</div>
-				<span class="bg-gradient-to-r from-amber-200 via-orange-300 to-amber-400 bg-clip-text text-transparent">
+				<span class="font-serif font-bold text-[#1C1917] tracking-normal text-lg">
 					DayFork
 				</span>
 			</a>
@@ -41,32 +41,32 @@
 				<a
 					href="/day/{activeDate}"
 					class="px-3 py-1.5 rounded-lg transition {page.url.pathname === `/day/${activeDate}`
-						? 'bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/30'
-						: 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}"
+						? 'bg-amber-100/80 text-amber-900 font-semibold border border-amber-300'
+						: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'}"
 				>
 					Hôm nay
 				</a>
 				<a
 					href="/day/{activeDate}/review"
 					class="px-3 py-1.5 rounded-lg transition {page.url.pathname.endsWith('/review')
-						? 'bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/30'
-						: 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}"
+						? 'bg-amber-100/80 text-amber-900 font-semibold border border-amber-300'
+						: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'}"
 				>
-					3 Đường Đi
+					Ngã Rẽ
 				</a>
 				<a
 					href="/week/{activeDate}"
 					class="px-3 py-1.5 rounded-lg transition {page.url.pathname.startsWith('/week')
-						? 'bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/30'
-						: 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}"
+						? 'bg-amber-100/80 text-amber-900 font-semibold border border-amber-300'
+						: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'}"
 				>
 					Tuần
 				</a>
 				<a
 					href="/month/{activeYm}"
 					class="px-3 py-1.5 rounded-lg transition {page.url.pathname.startsWith('/month')
-						? 'bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/30'
-						: 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}"
+						? 'bg-amber-100/80 text-amber-900 font-semibold border border-amber-300'
+						: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'}"
 				>
 					Tháng
 				</a>
@@ -80,7 +80,7 @@
 	</main>
 
 	<!-- Footer -->
-	<footer class="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+	<footer class="border-t border-[#E7E5E4] py-6 text-center text-xs text-stone-500">
 		DayFork — Mỗi ngã rẽ là một câu chuyện. Dữ liệu được bảo mật trên Edge SQLite (D1).
 	</footer>
 </div>

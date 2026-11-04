@@ -43,6 +43,7 @@ export async function getDayData(db: D1Database, date: string): Promise<DayData>
 
 	const opportunitiesWithBranches: OpportunityWithBranches[] = opps.map((o) => ({
 		...o,
+		other_text: o.other_text || '',
 		branches: branchesByOppId.get(o.id) || []
 	}));
 
@@ -84,15 +85,16 @@ export async function getDayData(db: D1Database, date: string): Promise<DayData>
 
 export async function createOpportunity(
 	db: D1Database,
-	input: { date: string; title: string; time_minutes: number; money_amount: number }
+	input: { date: string; title: string; time_minutes: number; money_amount: number; other_text?: string }
 ): Promise<Opportunity> {
 	const id = generateId();
 	const created_at = Date.now();
+	const other_text = (input.other_text || '').trim();
 	await db
 		.prepare(
-			'INSERT INTO opportunities (id, date, title, time_minutes, money_amount, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+			'INSERT INTO opportunities (id, date, title, time_minutes, money_amount, other_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
 		)
-		.bind(id, input.date, input.title.trim(), input.time_minutes, input.money_amount, created_at)
+		.bind(id, input.date, input.title.trim(), input.time_minutes, input.money_amount, other_text, created_at)
 		.run();
 
 	// Invalidate AI paths for this date
@@ -104,6 +106,7 @@ export async function createOpportunity(
 		title: input.title.trim(),
 		time_minutes: input.time_minutes,
 		money_amount: input.money_amount,
+		other_text,
 		created_at
 	};
 }
@@ -246,7 +249,10 @@ export async function getRangeData(
 		.bind(startDate, endDate)
 		.all<Opportunity>();
 
-	const oppList = opps.results || [];
+	const oppList = (opps.results || []).map((o) => ({
+		...o,
+		other_text: o.other_text || ''
+	}));
 	if (oppList.length === 0) {
 		return { opportunities: [], branches: [], aiPaths: [] };
 	}

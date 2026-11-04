@@ -40,12 +40,14 @@ export const actions: Actions = {
 		const title = String(formData.get('title') || '').trim();
 		const time_minutes = Number(formData.get('time_minutes') || 0);
 		const money_amount = Number(formData.get('money_amount') || 0);
+		const other_text = String(formData.get('other_text') || '').trim();
 
 		const parsed = v.safeParse(CreateOpportunitySchema, {
 			date: params.date,
 			title,
 			time_minutes,
-			money_amount
+			money_amount,
+			other_text
 		});
 
 		if (!parsed.success) {

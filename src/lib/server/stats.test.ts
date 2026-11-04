@@ -10,6 +10,7 @@ describe('Period Statistics Engine', () => {
 			title: '2 tiếng rảnh',
 			time_minutes: 120,
 			money_amount: 50000,
+			other_text: '',
 			created_at: 1000
 		},
 		{
@@ -18,6 +19,7 @@ describe('Period Statistics Engine', () => {
 			title: 'Tối',
 			time_minutes: 60,
 			money_amount: 0,
+			other_text: '',
 			created_at: 2000
 		}
 	];
@@ -124,6 +126,7 @@ describe('Period Statistics Engine', () => {
 			title: 'Ăn tối',
 			time_minutes: 60,
 			money_amount: 100000,
+			other_text: '',
 			created_at: 3000
 		};
 		const branch3a: Branch = {

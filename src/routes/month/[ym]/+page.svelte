@@ -36,80 +36,88 @@
 	});
 </script>
 
-<div class="space-y-6">
+<div class="space-y-6 max-w-5xl mx-auto">
 	<!-- Month Navigator -->
-	<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+	<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
 		<div class="flex items-center gap-3">
 			<a
 				href="/month/{prevYm}"
-				class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition"
+				class="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 hover:text-stone-900 transition font-bold"
 				title="Tháng trước"
 			>
 				←
 			</a>
 			<div>
-				<h1 class="text-xl font-bold text-slate-100">
+				<h1 class="text-xl font-bold text-stone-900 font-serif">
 					Tháng {month}/{year}
 				</h1>
-				<p class="text-xs text-slate-400 mt-0.5">Tổng quan diễn biến toàn tháng</p>
+				<p class="text-xs text-stone-500 mt-0.5">Tổng quan diễn biến toàn tháng</p>
 			</div>
 			<a
 				href="/month/{nextYm}"
-				class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition"
+				class="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 hover:text-stone-900 transition font-bold"
 				title="Tháng sau"
 			>
 				→
 			</a>
 		</div>
 
-		<div class="text-xs bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700/60 text-slate-300 font-mono">
+		<div class="text-xs bg-stone-100 px-3.5 py-2 rounded-xl border border-stone-200 text-stone-700 font-mono">
 			{stats.totalOpportunities} cơ hội ghi nhận • {stats.totalDays} ngày có hoạt động
 		</div>
 	</div>
 
 	<!-- Month KPIs -->
 	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-		<div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-			<span class="text-xs font-medium text-slate-400">🎯 Trùng Đường Tối Ưu</span>
-			<div class="text-2xl font-bold text-emerald-400 font-mono">
+		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
+			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+				<span>🟢</span> Trùng Hiệu Quả
+			</span>
+			<div class="text-2xl font-bold text-emerald-700 font-mono">
 				{stats.bestMatchRate}%
 			</div>
-			<p class="text-[11px] text-slate-500">{stats.bestMatchCount} lựa chọn</p>
+			<p class="text-[11px] text-stone-500 font-mono">{stats.bestMatchCount} lựa chọn</p>
 		</div>
 
-		<div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-			<span class="text-xs font-medium text-slate-400">☕ Trùng Đường Thoải Mái</span>
-			<div class="text-2xl font-bold text-sky-400 font-mono">
+		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
+			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+				<span>🔵</span> Trùng Thả Lỏng
+			</span>
+			<div class="text-2xl font-bold text-sky-700 font-mono">
 				{stats.comfortMatchRate}%
 			</div>
-			<p class="text-[11px] text-slate-500">{stats.comfortMatchCount} lựa chọn</p>
+			<p class="text-[11px] text-stone-500 font-mono">{stats.comfortMatchCount} lựa chọn</p>
 		</div>
 
-		<div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-			<span class="text-xs font-medium text-slate-400">⏱ Thời Gian Dư Dôi</span>
-			<div class="text-xl font-bold text-slate-200 font-mono">
+		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
+			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+				<span>⏱</span> Thời Gian Dư Dôi
+			</span>
+			<div class="text-xl font-bold text-stone-900 font-mono">
 				{formatTimeVi(savedTime)}
 			</div>
-			<p class="text-[11px] text-slate-500">Trên tổng {formatTimeVi(stats.totalTimeAvailable)}</p>
+			<p class="text-[11px] text-stone-500 font-mono">Trên tổng {formatTimeVi(stats.totalTimeAvailable)}</p>
 		</div>
 
-		<div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-			<span class="text-xs font-medium text-slate-400">💵 Tiền Dôi Dư</span>
-			<div class="text-xl font-bold text-slate-200 font-mono">
+		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
+			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+				<span>💵</span> Tiền Dôi Dư
+			</span>
+			<div class="text-xl font-bold text-stone-900 font-mono">
 				{formatMoneyVi(savedMoney)}
 			</div>
-			<p class="text-[11px] text-slate-500">Trên tổng {formatMoneyVi(stats.totalMoneyAvailable)}</p>
+			<p class="text-[11px] text-stone-500 font-mono">Trên tổng {formatMoneyVi(stats.totalMoneyAvailable)}</p>
 		</div>
 	</div>
 
 	<!-- Calendar Heatmap Grid -->
-	<section class="bg-slate-900/60 rounded-2xl border border-slate-800 p-5 space-y-4">
-		<h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+	<section class="bg-white rounded-2xl border border-stone-200 p-5 space-y-4 shadow-xs">
+		<h2 class="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-2 font-mono">
 			<span>🗓</span> Lịch Hoạt Động Trong Tháng
 		</h2>
 
 		<!-- Day of week headers -->
-		<div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-500 pb-1 border-b border-slate-800/60">
+		<div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-stone-500 pb-1 border-b border-stone-200">
 			<span>T2</span>
 			<span>T3</span>
 			<span>T4</span>
@@ -123,7 +131,7 @@
 		<div class="grid grid-cols-7 gap-2">
 			<!-- Empty leading cells for weekday offset -->
 			{#each Array(firstDayOffset) as _}
-				<div class="min-h-[70px] rounded-xl bg-slate-950/20 border border-slate-900/40"></div>
+				<div class="min-h-[70px] rounded-xl bg-stone-50/50 border border-stone-100"></div>
 			{/each}
 
 			<!-- Days of month -->
@@ -133,20 +141,20 @@
 				<a
 					href="/day/{d}"
 					class="min-h-[70px] p-2 rounded-xl border transition flex flex-col justify-between {hasData
-						? 'bg-slate-950/80 border-slate-700/80 hover:border-amber-400/60 hover:bg-slate-900'
-						: 'bg-slate-950/40 border-slate-800/40 text-slate-600 hover:border-slate-700'}"
+						? 'bg-amber-50/50 border-amber-200 hover:border-amber-400 hover:bg-amber-50/80'
+						: 'bg-stone-50 border-stone-200 text-stone-400 hover:border-stone-300'}"
 				>
 					<div class="flex items-center justify-between text-xs font-mono">
-						<span class="font-bold {hasData ? 'text-amber-300' : 'text-slate-500'}">
+						<span class="font-bold {hasData ? 'text-amber-800' : 'text-stone-400'}">
 							{d.slice(8)}
 						</span>
 						{#if hasData}
-							<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+							<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
 						{/if}
 					</div>
 
 					{#if hasData}
-						<div class="text-[10px] text-slate-400 leading-tight">
+						<div class="text-[10px] text-stone-600 font-mono leading-tight">
 							<div>{dayData.opportunityCount} cơ hội</div>
 						</div>
 					{/if}

@@ -4,6 +4,7 @@ export interface Opportunity {
 	title: string;
 	time_minutes: number;
 	money_amount: number;
+	other_text: string;
 	created_at: number;
 }
 

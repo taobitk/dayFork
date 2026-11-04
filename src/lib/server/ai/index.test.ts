@@ -12,6 +12,7 @@ describe('AI Path Generator & Constraints', () => {
 				title: 'Chiều rảnh rỗi',
 				time_minutes: 120,
 				money_amount: 50000,
+				other_text: '',
 				created_at: 1000,
 				branches: [
 					{

@@ -8,14 +8,29 @@ import {
 } from './validation';
 
 describe('Validation Layer', () => {
-	it('validates opportunity creation inputs', () => {
-		const valid = v.safeParse(CreateOpportunitySchema, {
+	it('validates opportunity creation inputs with optional other_text', () => {
+		const validWithContext = v.safeParse(CreateOpportunitySchema, {
+			date: '2026-11-04',
+			title: '2 tiếng buổi chiều',
+			time_minutes: 120,
+			money_amount: 50000,
+			other_text: 'Trời mưa, người hơi mệt'
+		});
+		expect(validWithContext.success).toBe(true);
+		if (validWithContext.success) {
+			expect(validWithContext.output.other_text).toBe('Trời mưa, người hơi mệt');
+		}
+
+		const validEmptyContext = v.safeParse(CreateOpportunitySchema, {
 			date: '2026-11-04',
 			title: '2 tiếng buổi chiều',
 			time_minutes: 120,
 			money_amount: 50000
 		});
-		expect(valid.success).toBe(true);
+		expect(validEmptyContext.success).toBe(true);
+		if (validEmptyContext.success) {
+			expect(validEmptyContext.output.other_text).toBe('');
+		}
 
 		const invalidNegative = v.safeParse(CreateOpportunitySchema, {
 			date: '2026-11-04',

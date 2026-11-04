@@ -17,6 +17,10 @@ export const CreateOpportunitySchema = v.object({
 	money_amount: v.pipe(
 		v.number(),
 		v.minValue(0, 'Tiền không được âm')
+	),
+	other_text: v.optional(
+		v.pipe(v.string(), v.maxLength(300, 'Ghi chú khác tối đa 300 ký tự')),
+		''
 	)
 });
 
