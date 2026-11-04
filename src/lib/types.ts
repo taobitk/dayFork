@@ -95,3 +95,15 @@ export interface PeriodStats {
 	dailyBreakdown: DailySummaryItem[];
 }
 
+export type SlotItem = { type: 'branch'; branch: Branch } | { type: 'add' };
+
+export interface OpportunityLayout {
+	hasChosen: boolean;
+	chosenBranch?: Branch;
+	flatItems?: SlotItem[];
+	row1Left?: SlotItem;
+	row1Right?: SlotItem;
+	extraRows?: { left?: SlotItem; right?: SlotItem }[];
+}
+
+
