@@ -23,6 +23,27 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		const todayUrl = page.url();
 		expect(todayUrl).toMatch(/\/day\/\d{4}-\d{2}-\d{2}/);
 
+		// 1b. Test Dark Mode toggle and localStorage persistence
+		const themeToggle = page.locator('button[data-testid="theme-toggle"]');
+		await expect(themeToggle).toBeVisible();
+		await page.waitForTimeout(500);
+
+		// Click to switch to Dark Mode
+		await themeToggle.click();
+		await expect(page.locator('html')).toHaveClass(/dark/);
+		const storedThemeDark = await page.evaluate(() => localStorage.getItem('theme'));
+		expect(storedThemeDark).toBe('dark');
+
+		// Reload page and verify dark mode persists without FOUC
+		await page.reload();
+		await expect(page.locator('html')).toHaveClass(/dark/);
+
+		// Click again to switch back to Light Mode
+		await page.locator('button[data-testid="theme-toggle"]').click();
+		await expect(page.locator('html')).not.toHaveClass(/dark/);
+		const storedThemeLight = await page.evaluate(() => localStorage.getItem('theme'));
+		expect(storedThemeLight).toBe('light');
+
 		// 2. Create a test opportunity with other_text
 		const uniqueTitle = `E2E Map ${Date.now()}`;
 		const contextNote = 'Trời se lạnh, tâm trạng phấn khởi';

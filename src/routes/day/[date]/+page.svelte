@@ -220,7 +220,7 @@
 									delForm.requestSubmit();
 								}
 							}}
-							class="ml-1 cursor-pointer text-xs text-stone-300 hover:text-rose-500"
+							class="ml-1 cursor-pointer text-xs text-stone-300 dark:text-zinc-600 hover:text-rose-500"
 							title="Xóa nhánh"
 						>
 							✕
@@ -247,7 +247,7 @@
 	{#if addingBranchOppId === opp.id}
 		<!-- In-place White Form Card -->
 		<div
-			class="unified-note animate-in fade-in zoom-in-95 flex min-h-[140px] flex-col justify-between gap-2.5 rounded-2xl border-2 border-amber-500 bg-white p-4 shadow-md duration-150"
+			class="unified-note animate-in fade-in zoom-in-95 flex min-h-[140px] flex-col justify-between gap-2.5 rounded-2xl border-2 border-amber-500 bg-white dark:bg-zinc-800 p-4 shadow-md duration-150"
 		>
 			<form
 				method="POST"
@@ -264,13 +264,13 @@
 
 				<div>
 					<div class="mb-1 flex items-center justify-between">
-						<span class="font-mono text-[10px] font-bold tracking-wider text-amber-700 uppercase"
+						<span class="font-mono text-[10px] font-bold tracking-wider text-amber-700 dark:text-amber-400 uppercase"
 							>Nhánh mới</span
 						>
 						<button
 							type="button"
 							onclick={closeAddBranch}
-							class="cursor-pointer text-xs font-bold text-stone-400 hover:text-stone-700"
+							class="cursor-pointer text-xs font-bold text-stone-400 dark:text-zinc-500 hover:text-stone-700 dark:hover:text-zinc-200"
 							title="Đóng"
 						>
 							✕
@@ -282,13 +282,13 @@
 						name="name"
 						required
 						placeholder="Tên nhánh mới (vd: Đi bộ, Đọc sách...)"
-						class="w-full rounded-lg border border-stone-300 bg-stone-50 px-2.5 py-1.5 text-xs font-semibold text-stone-900 placeholder-stone-400 focus:border-amber-600 focus:bg-white focus:outline-none"
+						class="w-full rounded-lg border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-2.5 py-1.5 text-xs font-semibold text-stone-900 dark:text-zinc-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:border-amber-600 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none"
 					/>
 				</div>
 
 				<div class="grid grid-cols-2 gap-2 text-xs">
 					<div>
-						<label for="branch-time-{opp.id}" class="mb-0.5 block text-[10px] text-stone-500">Thời gian</label>
+						<label for="branch-time-{opp.id}" class="mb-0.5 block text-[10px] text-stone-500 dark:text-zinc-400">Thời gian</label>
 						<div class="flex items-center gap-1">
 							<input
 								id="branch-time-{opp.id}"
@@ -297,13 +297,13 @@
 								min="0"
 								step="5"
 								defaultValue={opp.time_minutes}
-								class="w-full rounded-md border border-stone-200 bg-stone-50 px-2 py-1 font-mono text-xs text-stone-900 focus:border-amber-600 focus:outline-none"
+								class="w-full rounded-md border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-2 py-1 font-mono text-xs text-stone-900 dark:text-zinc-100 focus:border-amber-600 focus:outline-none"
 							/>
-							<span class="text-[10px] text-stone-400">p</span>
+							<span class="text-[10px] text-stone-400 dark:text-zinc-500">p</span>
 						</div>
 					</div>
 					<div>
-						<label for="branch-money-{opp.id}" class="mb-0.5 block text-[10px] text-stone-500">Tiền tiêu</label>
+						<label for="branch-money-{opp.id}" class="mb-0.5 block text-[10px] text-stone-500 dark:text-zinc-400">Tiền tiêu</label>
 						<div class="flex items-center gap-1">
 							<input
 								id="branch-money-{opp.id}"
@@ -312,9 +312,9 @@
 								min="0"
 								step="1000"
 								defaultValue={0}
-								class="w-full rounded-md border border-stone-200 bg-stone-50 px-2 py-1 font-mono text-xs text-stone-900 focus:border-amber-600 focus:outline-none"
+								class="w-full rounded-md border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-2 py-1 font-mono text-xs text-stone-900 dark:text-zinc-100 focus:border-amber-600 focus:outline-none"
 							/>
-							<span class="text-[10px] text-stone-400">đ</span>
+							<span class="text-[10px] text-stone-400 dark:text-zinc-500">đ</span>
 						</div>
 					</div>
 				</div>
@@ -324,15 +324,15 @@
 						type="text"
 						name="outcome"
 						placeholder="Cảm xúc / Kết quả nhận lại..."
-						class="w-full rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs text-stone-800 placeholder-stone-400 focus:border-amber-600 focus:bg-white focus:outline-none"
+						class="w-full rounded-lg border border-stone-200 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-2.5 py-1 text-xs text-stone-800 dark:text-zinc-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:border-amber-600 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none"
 					/>
 				</div>
 
-				<div class="flex items-center justify-end gap-2 border-t border-stone-100 pt-1">
+				<div class="flex items-center justify-end gap-2 border-t border-stone-100 dark:border-zinc-700/60 pt-1">
 					<button
 						type="button"
 						onclick={closeAddBranch}
-						class="cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium text-stone-500 hover:text-stone-800"
+						class="cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium text-stone-500 dark:text-zinc-400 hover:text-stone-800 dark:hover:text-zinc-200"
 					>
 						Hủy
 					</button>
@@ -371,25 +371,25 @@
 <div class="mx-auto max-w-4xl space-y-6">
 	<!-- Top Bar: Date Navigator & Status -->
 	<div
-		class="flex flex-col justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center"
+		class="flex flex-col justify-between gap-4 rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/90 p-4 shadow-sm sm:flex-row sm:items-center"
 	>
 		<div class="flex items-center gap-3">
 			<a
 				href="/day/{prevDate}"
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 font-bold text-stone-700 transition hover:bg-stone-200 hover:text-stone-900"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white"
 				title="Ngày trước"
 			>
 				←
 			</a>
 			<div>
-				<h1 class="flex items-center gap-2 font-serif text-xl font-bold text-stone-900">
+				<h1 class="flex items-center gap-2 font-serif text-xl font-bold text-stone-900 dark:text-zinc-100">
 					<span>{formatDateVi(currentDate)}</span>
 				</h1>
-				<p class="mt-0.5 font-mono text-xs text-stone-500">{currentDate}</p>
+				<p class="mt-0.5 font-mono text-xs text-stone-500 dark:text-zinc-400">{currentDate}</p>
 			</div>
 			<a
 				href="/day/{nextDate}"
-				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 font-bold text-stone-700 transition hover:bg-stone-200 hover:text-stone-900"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 dark:bg-zinc-700 font-bold text-stone-700 dark:text-zinc-200 transition hover:bg-stone-200 dark:hover:bg-zinc-600 hover:text-stone-900 dark:hover:text-white"
 				title="Ngày sau"
 			>
 				→
@@ -399,11 +399,11 @@
 		<!-- Action Links / Stats pill -->
 		<div class="flex flex-wrap items-center gap-3">
 			<div
-				class="rounded-lg border border-stone-200 bg-stone-100 px-3 py-1.5 font-mono text-xs text-stone-700"
+				class="rounded-lg border border-stone-200 dark:border-zinc-700 bg-stone-100 dark:bg-zinc-900/80 px-3 py-1.5 font-mono text-xs text-stone-700 dark:text-zinc-300"
 			>
-				<span class="font-bold text-amber-700">{totalChosen}</span>/{totalOpportunities} đã chọn
-				<span class="mx-1 text-stone-400">|</span>
-				<span class="font-semibold text-stone-800">{totalBranches}</span> nhánh
+				<span class="font-bold text-amber-700 dark:text-amber-400">{totalChosen}</span>/{totalOpportunities} đã chọn
+				<span class="mx-1 text-stone-400 dark:text-zinc-500">|</span>
+				<span class="font-semibold text-stone-800 dark:text-zinc-200">{totalBranches}</span> nhánh
 			</div>
 			<a
 				href="/day/{currentDate}/review"
@@ -417,19 +417,19 @@
 
 	{#if form?.message}
 		<div
-			class="flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-sm text-rose-800"
+			class="flex items-center justify-between rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 p-3.5 text-sm text-rose-800 dark:text-rose-300"
 		>
 			<span>⚠️ {form.message}</span>
 		</div>
 	{/if}
 
 	<!-- Creator Panel -->
-	<section class="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+	<section class="rounded-2xl border border-stone-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/90 p-4 shadow-sm sm:p-5">
 		<div class="mb-3 flex items-center justify-between">
-			<h2 class="flex items-center gap-2 text-xs font-bold tracking-wider text-stone-600 uppercase">
+			<h2 class="flex items-center gap-2 text-xs font-bold tracking-wider text-stone-600 dark:text-zinc-300 uppercase">
 				<span>➕</span> Thêm Cơ Hội Mới
 			</h2>
-			<span class="text-xs text-stone-400">Đặt bối cảnh + tài nguyên + ghi chú hoàn cảnh</span>
+			<span class="text-xs text-stone-400 dark:text-zinc-500">Đặt bối cảnh + tài nguyên + ghi chú hoàn cảnh</span>
 		</div>
 
 		<form
@@ -446,7 +446,7 @@
 		>
 			<div class="grid grid-cols-1 gap-3 sm:grid-cols-12">
 				<div class="sm:col-span-5">
-					<label for="opp-title" class="mb-1 block text-xs font-medium text-stone-600"
+					<label for="opp-title" class="mb-1 block text-xs font-medium text-stone-600 dark:text-zinc-400"
 						>Bối cảnh cơ hội</label
 					>
 					<input
@@ -456,12 +456,12 @@
 						bind:value={newOppTitle}
 						required
 						placeholder="vd: Sáng cuối tuần thảnh thơi, Chiều làm việc..."
-						class="w-full rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:border-amber-600 focus:bg-white focus:outline-none"
+						class="w-full rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-3 py-2 text-sm text-stone-900 dark:text-zinc-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:border-amber-600 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none"
 					/>
 				</div>
 
 				<div class="sm:col-span-2">
-					<label for="opp-time" class="mb-1 block text-xs font-medium text-stone-600"
+					<label for="opp-time" class="mb-1 block text-xs font-medium text-stone-600 dark:text-zinc-400"
 						>Thời gian</label
 					>
 					<div class="flex items-center gap-1">
@@ -472,34 +472,34 @@
 							bind:value={newOppTime}
 							min="0"
 							step="15"
-							class="w-full rounded-xl border border-stone-300 bg-stone-50 px-2.5 py-2 font-mono text-sm text-stone-900 focus:border-amber-600 focus:bg-white focus:outline-none"
+							class="w-full rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-2.5 py-2 font-mono text-sm text-stone-900 dark:text-zinc-100 focus:border-amber-600 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none"
 						/>
-						<span class="text-xs text-stone-500">phút</span>
+						<span class="text-xs text-stone-500 dark:text-zinc-400">phút</span>
 					</div>
 					<div class="mt-1 flex items-center gap-1 text-[10px]">
 						<button
 							type="button"
 							onclick={() => setQuickTime(45)}
-							class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700"
+							class="cursor-pointer rounded bg-stone-100 dark:bg-zinc-700 px-1.5 py-0.5 text-stone-600 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400"
 							>45p</button
 						>
 						<button
 							type="button"
 							onclick={() => setQuickTime(90)}
-							class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700"
+							class="cursor-pointer rounded bg-stone-100 dark:bg-zinc-700 px-1.5 py-0.5 text-stone-600 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400"
 							>90p</button
 						>
 						<button
 							type="button"
 							onclick={() => setQuickTime(120)}
-							class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700"
+							class="cursor-pointer rounded bg-stone-100 dark:bg-zinc-700 px-1.5 py-0.5 text-stone-600 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400"
 							>2h</button
 						>
 					</div>
 				</div>
 
 				<div class="sm:col-span-2">
-					<label for="opp-money" class="mb-1 block text-xs font-medium text-stone-600"
+					<label for="opp-money" class="mb-1 block text-xs font-medium text-stone-600 dark:text-zinc-400"
 						>Tiền có sẵn</label
 					>
 					<div class="flex items-center gap-1">
@@ -510,34 +510,34 @@
 							bind:value={newOppMoney}
 							min="0"
 							step="5000"
-							class="w-full rounded-xl border border-stone-300 bg-stone-50 px-2.5 py-2 font-mono text-sm text-stone-900 focus:border-amber-600 focus:bg-white focus:outline-none"
+							class="w-full rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-2.5 py-2 font-mono text-sm text-stone-900 dark:text-zinc-100 focus:border-amber-600 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none"
 						/>
-						<span class="text-xs text-stone-500">đ</span>
+						<span class="text-xs text-stone-500 dark:text-zinc-400">đ</span>
 					</div>
 					<div class="mt-1 flex items-center gap-1 text-[10px]">
 						<button
 							type="button"
 							onclick={() => setQuickMoney(0)}
-							class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700"
+							class="cursor-pointer rounded bg-stone-100 dark:bg-zinc-700 px-1.5 py-0.5 text-stone-600 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400"
 							>0đ</button
 						>
 						<button
 							type="button"
 							onclick={() => setQuickMoney(50000)}
-							class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700"
+							class="cursor-pointer rounded bg-stone-100 dark:bg-zinc-700 px-1.5 py-0.5 text-stone-600 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400"
 							>50k</button
 						>
 						<button
 							type="button"
 							onclick={() => setQuickMoney(100000)}
-							class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700"
+							class="cursor-pointer rounded bg-stone-100 dark:bg-zinc-700 px-1.5 py-0.5 text-stone-600 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400"
 							>100k</button
 						>
 					</div>
 				</div>
 
 				<div class="sm:col-span-3">
-					<label for="opp-other" class="mb-1 block text-xs font-medium text-stone-600"
+					<label for="opp-other" class="mb-1 block text-xs font-medium text-stone-600 dark:text-zinc-400"
 						>Ghi chú khác (mệt, mưa...)</label
 					>
 					<input
@@ -546,7 +546,7 @@
 						name="other_text"
 						bind:value={newOppOtherText}
 						placeholder="vd: Trời se lạnh, đang mệt..."
-						class="w-full rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:border-amber-600 focus:bg-white focus:outline-none"
+						class="w-full rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-900 px-3 py-2 text-sm text-stone-900 dark:text-zinc-100 placeholder-stone-400 dark:placeholder-zinc-500 focus:border-amber-600 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none"
 					/>
 				</div>
 			</div>
@@ -554,7 +554,7 @@
 			<div class="flex justify-end pt-1">
 				<button
 					type="submit"
-					class="cursor-pointer rounded-xl bg-stone-900 px-5 py-2 text-xs font-semibold tracking-wide text-white shadow-sm transition hover:bg-stone-800"
+					class="cursor-pointer rounded-xl bg-stone-900 dark:bg-amber-600 px-5 py-2 text-xs font-semibold tracking-wide text-white shadow-sm transition hover:bg-stone-800 dark:hover:bg-amber-700"
 				>
 					+ Ghim Cơ Hội
 				</button>
@@ -565,7 +565,7 @@
 	<!-- Timeline Stream -->
 	{#if opportunities.length === 0}
 		<div
-			class="rounded-2xl border border-dashed border-stone-300 bg-white/60 p-12 text-center text-stone-400"
+			class="rounded-2xl border border-dashed border-stone-300 dark:border-zinc-700 bg-white/60 dark:bg-zinc-800/40 p-12 text-center text-stone-400 dark:text-zinc-500"
 		>
 			<div class="mb-3 text-4xl">🌱</div>
 			<p class="font-serif text-base font-medium text-stone-700">
@@ -598,9 +598,9 @@
 							tabindex="0"
 						>
 							<div class="flex min-w-0 items-center gap-2.5">
-								<span class="h-2 w-2 rounded-full {hasSelection ? 'bg-amber-500' : 'bg-stone-400'}"
+								<span class="h-2 w-2 rounded-full {hasSelection ? 'bg-amber-500' : 'bg-stone-400 dark:bg-zinc-600'}"
 								></span>
-								<span class="truncate text-sm font-bold text-stone-900">{opp.title}</span>
+								<span class="truncate text-sm font-bold text-stone-900 dark:text-zinc-100">{opp.title}</span>
 							</div>
 
 							<div class="flex flex-shrink-0 items-center gap-2 font-mono text-xs">
@@ -609,17 +609,17 @@
 								>
 								{#if opp.other_text}
 									<span
-										class="rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 font-sans text-[11px] text-amber-900"
+										class="rounded-full border border-amber-200 dark:border-amber-800/60 bg-amber-100 dark:bg-amber-950/50 px-2 py-0.5 font-sans text-[11px] text-amber-900 dark:text-amber-200"
 									>
 										📌 {opp.other_text}
 									</span>
 								{/if}
 								{#if chosenBranch}
-									<span class="hidden font-sans text-xs font-semibold text-amber-700 sm:inline">
+									<span class="hidden font-sans text-xs font-semibold text-amber-700 dark:text-amber-400 sm:inline">
 										✓ {chosenBranch.name}
 									</span>
 								{/if}
-								<span class="px-1 text-xs text-stone-400 hover:text-stone-800">▼</span>
+								<span class="px-1 text-xs text-stone-400 dark:text-zinc-500 hover:text-stone-800 dark:hover:text-zinc-200">▼</span>
 							</div>
 						</div>
 					{:else}
@@ -635,7 +635,7 @@
 							{#if opp.other_text}
 								<div class="note-subtitle-text">"{opp.other_text}"</div>
 							{:else}
-								<div class="note-subtitle-text text-stone-400">Chưa có ghi chú hoàn cảnh</div>
+								<div class="note-subtitle-text text-stone-400 dark:text-zinc-500">Chưa có ghi chú hoàn cảnh</div>
 							{/if}
 
 							<div class="note-dashed-divider"></div>
@@ -648,7 +648,7 @@
 									<button
 										type="button"
 										onclick={() => toggleCollapse(opp.id)}
-										class="text-action-link cursor-pointer hover:text-stone-900"
+										class="text-action-link cursor-pointer hover:text-stone-900 dark:hover:text-zinc-200"
 									>
 										Thu gọn ▲
 									</button>
@@ -661,7 +661,7 @@
 													e.preventDefault();
 												}
 											}}
-											class="cursor-pointer text-xs text-stone-400 transition hover:text-rose-600"
+											class="cursor-pointer text-xs text-stone-400 dark:text-zinc-500 transition hover:text-rose-600"
 											title="Xóa cơ hội này"
 										>
 											✕
