@@ -40,7 +40,8 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const title = String(formData.get('title') || '').trim();
 		const time_minutes = Number(formData.get('time_minutes') || 0);
-		const money_amount = Number(formData.get('money_amount') || 0);
+		const rawMoney = String(formData.get('money_amount') || '').replace(/\./g, '').replace(/,/g, '').trim();
+		const money_amount = Number(rawMoney || 0);
 		const other_text = String(formData.get('other_text') || '').trim();
 
 		const parsed = v.safeParse(CreateOpportunitySchema, {
@@ -78,7 +79,8 @@ export const actions: Actions = {
 		const opportunity_id = String(formData.get('opportunity_id') || '');
 		const name = String(formData.get('name') || '').trim();
 		const cost_time = Number(formData.get('cost_time') || 0);
-		const cost_money = Number(formData.get('cost_money') || 0);
+		const rawCostMoney = String(formData.get('cost_money') || '').replace(/\./g, '').replace(/,/g, '').trim();
+		const cost_money = Number(rawCostMoney || 0);
 		const outcome = String(formData.get('outcome') || '').trim();
 
 		const parsed = v.safeParse(CreateBranchSchema, {

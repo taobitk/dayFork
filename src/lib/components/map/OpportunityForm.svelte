@@ -3,15 +3,41 @@
 	import { Plus } from 'lucide-svelte';
 
 	let newOppTitle = $state('');
-	let newOppTime = $state<number>(90);
-	let newOppMoney = $state<number>(50000);
+	let newOppTime = $state<number | string>('');
+	let moneyDisplay = $state('');
 	let newOppOtherText = $state('');
 
 	function setQuickTime(mins: number) {
 		newOppTime = mins;
 	}
+
+	function formatMoneyDisplay(val: string | number): string {
+		const rawDigits = String(val).replace(/\D/g, '');
+		if (!rawDigits) return '';
+		return Number(rawDigits).toLocaleString('vi-VN');
+	}
+
 	function setQuickMoney(amount: number) {
-		newOppMoney = amount;
+		if (amount === 0) {
+			moneyDisplay = '0';
+		} else {
+			moneyDisplay = formatMoneyDisplay(amount);
+		}
+	}
+
+	function handleMoneyInput(e: Event & { currentTarget: HTMLInputElement }) {
+		const input = e.currentTarget;
+		const rawVal = input.value.trim();
+		if (rawVal === '0') {
+			moneyDisplay = '0';
+			return;
+		}
+		const digits = rawVal.replace(/\D/g, '');
+		if (!digits) {
+			moneyDisplay = '';
+		} else {
+			moneyDisplay = Number(digits).toLocaleString('vi-VN');
+		}
 	}
 </script>
 
@@ -34,6 +60,8 @@
 			return async ({ update }) => {
 				await update();
 				newOppTitle = '';
+				newOppTime = '';
+				moneyDisplay = '';
 				newOppOtherText = '';
 			};
 		}}
@@ -69,7 +97,8 @@
 						name="time_minutes"
 						bind:value={newOppTime}
 						min="0"
-						step="15"
+						step="5"
+						placeholder="90"
 						class="w-full rounded-xl border border-stone-300 bg-stone-50 px-2.5 py-2 font-mono text-sm text-stone-900 focus:border-amber-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:bg-zinc-900"
 					/>
 					<span class="text-xs text-stone-500 dark:text-zinc-400">p</span>
@@ -77,21 +106,21 @@
 				<div class="mt-1 flex items-center gap-1 text-[10px]">
 					<button
 						type="button"
-						onclick={() => setQuickTime(45)}
+						onclick={() => setQuickTime(15)}
 						class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:text-amber-400"
-						>45p</button
+						>15p</button
+					>
+					<button
+						type="button"
+						onclick={() => setQuickTime(30)}
+						class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:text-amber-400"
+						>30p</button
 					>
 					<button
 						type="button"
 						onclick={() => setQuickTime(90)}
 						class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:text-amber-400"
 						>90p</button
-					>
-					<button
-						type="button"
-						onclick={() => setQuickTime(120)}
-						class="cursor-pointer rounded bg-stone-100 px-1.5 py-0.5 text-stone-600 hover:text-amber-700 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:text-amber-400"
-						>2h</button
 					>
 				</div>
 			</div>
@@ -104,11 +133,12 @@
 				<div class="flex items-center gap-1">
 					<input
 						id="opp-money"
-						type="number"
+						type="text"
+						inputmode="numeric"
 						name="money_amount"
-						bind:value={newOppMoney}
-						min="0"
-						step="5000"
+						bind:value={moneyDisplay}
+						oninput={handleMoneyInput}
+						placeholder="50.000"
 						class="w-full rounded-xl border border-stone-300 bg-stone-50 px-2.5 py-2 font-mono text-sm text-stone-900 focus:border-amber-600 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:focus:bg-zinc-900"
 					/>
 					<span class="text-xs text-stone-500 dark:text-zinc-400">đ</span>
