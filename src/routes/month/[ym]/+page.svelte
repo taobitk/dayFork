@@ -36,88 +36,100 @@
 	});
 </script>
 
-<div class="space-y-6 max-w-5xl mx-auto">
+<div class="mx-auto max-w-5xl space-y-6">
 	<!-- Month Navigator -->
-	<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
+	<div
+		class="flex flex-col justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center"
+	>
 		<div class="flex items-center gap-3">
 			<a
 				href="/month/{prevYm}"
-				class="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 hover:text-stone-900 transition font-bold"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 font-bold text-stone-700 transition hover:bg-stone-200 hover:text-stone-900"
 				title="Tháng trước"
 			>
 				←
 			</a>
 			<div>
-				<h1 class="text-xl font-bold text-stone-900 font-serif">
+				<h1 class="font-serif text-xl font-bold text-stone-900">
 					Tháng {month}/{year}
 				</h1>
-				<p class="text-xs text-stone-500 mt-0.5">Tổng quan diễn biến toàn tháng</p>
+				<p class="mt-0.5 text-xs text-stone-500">Tổng quan diễn biến toàn tháng</p>
 			</div>
 			<a
 				href="/month/{nextYm}"
-				class="w-9 h-9 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 hover:text-stone-900 transition font-bold"
+				class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 font-bold text-stone-700 transition hover:bg-stone-200 hover:text-stone-900"
 				title="Tháng sau"
 			>
 				→
 			</a>
 		</div>
 
-		<div class="text-xs bg-stone-100 px-3.5 py-2 rounded-xl border border-stone-200 text-stone-700 font-mono">
+		<div
+			class="rounded-xl border border-stone-200 bg-stone-100 px-3.5 py-2 font-mono text-xs text-stone-700"
+		>
 			{stats.totalOpportunities} cơ hội ghi nhận • {stats.totalDays} ngày có hoạt động
 		</div>
 	</div>
 
 	<!-- Month KPIs -->
-	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
-			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+	<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+		<div class="space-y-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
+			<span class="flex items-center gap-1.5 text-xs font-semibold text-stone-600">
 				<span>🟢</span> Trùng Hiệu Quả
 			</span>
-			<div class="text-2xl font-bold text-emerald-700 font-mono">
+			<div class="font-mono text-2xl font-bold text-emerald-700">
 				{stats.bestMatchRate}%
 			</div>
-			<p class="text-[11px] text-stone-500 font-mono">{stats.bestMatchCount} lựa chọn</p>
+			<p class="font-mono text-[11px] text-stone-500">{stats.bestMatchCount} lựa chọn</p>
 		</div>
 
-		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
-			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+		<div class="space-y-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
+			<span class="flex items-center gap-1.5 text-xs font-semibold text-stone-600">
 				<span>🔵</span> Trùng Thả Lỏng
 			</span>
-			<div class="text-2xl font-bold text-sky-700 font-mono">
+			<div class="font-mono text-2xl font-bold text-sky-700">
 				{stats.comfortMatchRate}%
 			</div>
-			<p class="text-[11px] text-stone-500 font-mono">{stats.comfortMatchCount} lựa chọn</p>
+			<p class="font-mono text-[11px] text-stone-500">{stats.comfortMatchCount} lựa chọn</p>
 		</div>
 
-		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
-			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+		<div class="space-y-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
+			<span class="flex items-center gap-1.5 text-xs font-semibold text-stone-600">
 				<span>⏱</span> Thời Gian Dư Dôi
 			</span>
-			<div class="text-xl font-bold text-stone-900 font-mono">
+			<div class="font-mono text-xl font-bold text-stone-900">
 				{formatTimeVi(savedTime)}
 			</div>
-			<p class="text-[11px] text-stone-500 font-mono">Trên tổng {formatTimeVi(stats.totalTimeAvailable)}</p>
+			<p class="font-mono text-[11px] text-stone-500">
+				Trên tổng {formatTimeVi(stats.totalTimeAvailable)}
+			</p>
 		</div>
 
-		<div class="p-4 rounded-2xl bg-white border border-stone-200 space-y-1 shadow-xs">
-			<span class="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+		<div class="space-y-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
+			<span class="flex items-center gap-1.5 text-xs font-semibold text-stone-600">
 				<span>💵</span> Tiền Dôi Dư
 			</span>
-			<div class="text-xl font-bold text-stone-900 font-mono">
+			<div class="font-mono text-xl font-bold text-stone-900">
 				{formatMoneyVi(savedMoney)}
 			</div>
-			<p class="text-[11px] text-stone-500 font-mono">Trên tổng {formatMoneyVi(stats.totalMoneyAvailable)}</p>
+			<p class="font-mono text-[11px] text-stone-500">
+				Trên tổng {formatMoneyVi(stats.totalMoneyAvailable)}
+			</p>
 		</div>
 	</div>
 
 	<!-- Calendar Heatmap Grid -->
-	<section class="bg-white rounded-2xl border border-stone-200 p-5 space-y-4 shadow-xs">
-		<h2 class="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-2 font-mono">
+	<section class="space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-xs">
+		<h2
+			class="flex items-center gap-2 font-mono text-xs font-bold tracking-wider text-stone-600 uppercase"
+		>
 			<span>🗓</span> Lịch Hoạt Động Trong Tháng
 		</h2>
 
 		<!-- Day of week headers -->
-		<div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-stone-500 pb-1 border-b border-stone-200">
+		<div
+			class="grid grid-cols-7 gap-2 border-b border-stone-200 pb-1 text-center text-xs font-bold text-stone-500"
+		>
 			<span>T2</span>
 			<span>T3</span>
 			<span>T4</span>
@@ -131,30 +143,32 @@
 		<div class="grid grid-cols-7 gap-2">
 			<!-- Empty leading cells for weekday offset -->
 			{#each Array(firstDayOffset) as _}
-				<div class="min-h-[70px] rounded-xl bg-stone-50/50 border border-stone-100"></div>
+				<div class="min-h-[70px] rounded-xl border border-stone-100 bg-stone-50/50"></div>
 			{/each}
 
 			<!-- Days of month -->
 			{#each monthRange.days as d}
-				{@const dayData = stats.dailyBreakdown.find((item: import('#lib/types').DailySummaryItem) => item.date === d)}
+				{@const dayData = stats.dailyBreakdown.find(
+					(item: import('#lib/types').DailySummaryItem) => item.date === d
+				)}
 				{@const hasData = dayData && dayData.opportunityCount > 0}
 				<a
 					href="/day/{d}"
-					class="min-h-[70px] p-2 rounded-xl border transition flex flex-col justify-between {hasData
-						? 'bg-amber-50/50 border-amber-200 hover:border-amber-400 hover:bg-amber-50/80'
-						: 'bg-stone-50 border-stone-200 text-stone-400 hover:border-stone-300'}"
+					class="flex min-h-[70px] flex-col justify-between rounded-xl border p-2 transition {hasData
+						? 'border-amber-200 bg-amber-50/50 hover:border-amber-400 hover:bg-amber-50/80'
+						: 'border-stone-200 bg-stone-50 text-stone-400 hover:border-stone-300'}"
 				>
-					<div class="flex items-center justify-between text-xs font-mono">
+					<div class="flex items-center justify-between font-mono text-xs">
 						<span class="font-bold {hasData ? 'text-amber-800' : 'text-stone-400'}">
 							{d.slice(8)}
 						</span>
 						{#if hasData}
-							<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+							<span class="h-1.5 w-1.5 rounded-full bg-amber-600"></span>
 						{/if}
 					</div>
 
 					{#if hasData}
-						<div class="text-[10px] text-stone-600 font-mono leading-tight">
+						<div class="font-mono text-[10px] leading-tight text-stone-600">
 							<div>{dayData.opportunityCount} cơ hội</div>
 						</div>
 					{/if}
