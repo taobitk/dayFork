@@ -10,3 +10,4 @@ export const POST: RequestHandler = async ({ platform, cookies }) => {
 	cookies.delete('session_id', { path: '/' });
 	throw redirect(303, '/login');
 };
+

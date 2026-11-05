@@ -143,3 +143,4 @@ export async function deleteSession(db: D1Database, sessionId: string): Promise<
 	if (!sessionId) return;
 	await db.prepare('DELETE FROM sessions WHERE id = ?').bind(sessionId).run();
 }
+

@@ -1,5 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { env } from 'cloudflare:workers';
 import { findOrCreateGoogleUser, createSession } from '#lib/server/db/auth';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
@@ -9,7 +10,8 @@ export const POST: RequestHandler = async ({ request, platform, cookies, url }) 
 		return json({ error: 'Database not available' }, { status: 500 });
 	}
 
-	const clientId = platform.env.GG_Client_ID;
+	const cfEnv = env as unknown as Record<string, string>;
+	const clientId = platform?.env?.GG_Client_ID || cfEnv?.GG_Client_ID || '';
 	if (!clientId) {
 		return json({ error: 'Google Client ID not configured' }, { status: 500 });
 	}
