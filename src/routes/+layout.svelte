@@ -4,7 +4,7 @@
 	import { page } from '$app/state';
 	import { theme } from '#lib/theme.svelte';
 	import ConfirmDialog from '#lib/components/ConfirmDialog.svelte';
-	import { Sun, Moon } from 'lucide-svelte';
+	import { Sun, Moon, LogIn, LogOut } from 'lucide-svelte';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -89,8 +89,49 @@
 					</a>
 				</nav>
 
+				<!-- User Profile / Login -->
+				<div class="pl-1 sm:pl-2 border-l border-stone-200 dark:border-zinc-800 flex items-center gap-1.5">
+					{#if data.user}
+						<div class="flex items-center gap-1.5" title={data.user.email}>
+							{#if data.user.picture}
+								<img
+									src={data.user.picture}
+									alt={data.user.name}
+									class="w-7 h-7 rounded-full border border-amber-500/40 object-cover"
+									referrerpolicy="no-referrer"
+								/>
+							{:else}
+								<div class="w-7 h-7 rounded-full bg-amber-600 text-white flex items-center justify-center text-xs font-bold font-mono">
+									{data.user.name.charAt(0).toUpperCase()}
+								</div>
+							{/if}
+							<span class="hidden md:inline text-xs font-semibold text-stone-700 dark:text-zinc-300 max-w-[100px] truncate">
+								{data.user.name}
+							</span>
+							<form method="POST" action="/api/auth/logout">
+								<button
+									type="submit"
+									class="w-7 h-7 rounded-lg flex items-center justify-center text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+									title="Đăng xuất"
+								>
+									<LogOut size={13} />
+								</button>
+							</form>
+						</div>
+					{:else}
+						<a
+							href="/login"
+							class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-stone-700 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-400 hover:bg-stone-100 dark:hover:bg-zinc-800 transition"
+							title="Đăng nhập"
+						>
+							<LogIn size={13} />
+							<span>Đăng nhập</span>
+						</a>
+					{/if}
+				</div>
+
 				<!-- Dark Mode Toggle Button -->
-				<div class="pl-1 sm:pl-2 border-l border-stone-200 dark:border-zinc-800 flex items-center">
+				<div class="pl-1 flex items-center">
 					<button
 						type="button"
 						onclick={() => theme.toggle()}

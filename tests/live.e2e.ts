@@ -178,5 +178,12 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		await confirmDialog.locator('button:has-text("Xóa bỏ")').click();
 
 		await expect(page.locator(`text=${uniqueTitle}`)).toBeHidden({ timeout: 15000 });
+
+		// 11. Test /login page renders cleanly with Google GIS container
+		await page.click('header a[title="Đăng nhập"]');
+		await expect(page).toHaveURL(/\/login/);
+		await expect(page.locator('h1')).toContainText('DayFork');
+		await expect(page.locator('#google-btn-container')).toBeAttached();
+		await expect(page.locator('text=Bảo mật an toàn qua Google OAuth')).toBeVisible();
 	});
 });

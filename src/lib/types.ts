@@ -106,4 +106,20 @@ export interface OpportunityLayout {
 	extraRows?: { left?: SlotItem; right?: SlotItem }[];
 }
 
+export interface User {
+	id: string;
+	google_id?: string;
+	email: string;
+	name: string;
+	picture?: string;
+	created_at: number;
+}
+
+export interface Session {
+	id: string;
+	user_id: string;
+	expires_at: number;
+}
+
+
 
