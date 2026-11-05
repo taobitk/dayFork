@@ -4,15 +4,19 @@ import { isValidISODate, getTodayISO } from '#lib/date';
 import {
 	getDayData,
 	createOpportunity,
+	updateOpportunity,
 	deleteOpportunity,
 	createBranch,
+	updateBranch,
 	deleteBranch,
 	chooseBranch,
 	clearDay
 } from '#lib/server/db';
 import {
 	CreateOpportunitySchema,
+	UpdateOpportunitySchema,
 	CreateBranchSchema,
+	UpdateBranchSchema,
 	ChooseBranchSchema
 } from '#lib/server/validation';
 import * as v from 'valibot';
@@ -66,6 +70,40 @@ export const actions: Actions = {
 		return { success: true };
 	},
 
+	updateOpportunity: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
+		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
+
+		const formData = await request.formData();
+		const id = String(formData.get('id') || '');
+		const title = String(formData.get('title') || '').trim();
+		const time_minutes = Number(formData.get('time_minutes') || 0);
+		const rawMoney = String(formData.get('money_amount') || '').replace(/\./g, '').replace(/,/g, '').trim();
+		const money_amount = Number(rawMoney || 0);
+		const other_text = String(formData.get('other_text') || '').trim();
+
+		const parsed = v.safeParse(UpdateOpportunitySchema, {
+			id,
+			title,
+			time_minutes,
+			money_amount,
+			other_text
+		});
+
+		if (!parsed.success) {
+			const errorMsg = parsed.issues[0]?.message || 'Dữ liệu không hợp lệ';
+			return fail(400, { message: errorMsg, formType: 'updateOpportunity', id });
+		}
+
+		try {
+			await updateOpportunity(platform.env.DB, parsed.output, locals.user.id);
+			return { success: true };
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : 'Thao tác không thành công';
+			return fail(403, { message, formType: 'updateOpportunity', id });
+		}
+	},
+
 	deleteOpportunity: async ({ request, platform, locals }) => {
 		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
@@ -109,6 +147,40 @@ export const actions: Actions = {
 		} catch (err: unknown) {
 			const message = err instanceof Error ? err.message : 'Thao tác không thành công';
 			return fail(403, { message, formType: 'addBranch', opportunity_id });
+		}
+	},
+
+	updateBranch: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
+		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
+
+		const formData = await request.formData();
+		const id = String(formData.get('id') || '');
+		const name = String(formData.get('name') || '').trim();
+		const cost_time = Number(formData.get('cost_time') || 0);
+		const rawCostMoney = String(formData.get('cost_money') || '').replace(/\./g, '').replace(/,/g, '').trim();
+		const cost_money = Number(rawCostMoney || 0);
+		const outcome = String(formData.get('outcome') || '').trim();
+
+		const parsed = v.safeParse(UpdateBranchSchema, {
+			id,
+			name,
+			cost_time,
+			cost_money,
+			outcome
+		});
+
+		if (!parsed.success) {
+			const errorMsg = parsed.issues[0]?.message || 'Dữ liệu nhánh không hợp lệ';
+			return fail(400, { message: errorMsg, formType: 'updateBranch', id });
+		}
+
+		try {
+			await updateBranch(platform.env.DB, parsed.output, locals.user.id);
+			return { success: true };
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : 'Thao tác không thành công';
+			return fail(403, { message, formType: 'updateBranch', id });
 		}
 	},
 

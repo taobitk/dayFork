@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { Check, Trash2 } from 'lucide-svelte';
+	import { Check, Trash2, Pencil } from 'lucide-svelte';
 	import type { Branch, OpportunityWithBranches } from '#lib/types';
 	import { formatMoneyVi } from '#lib/date';
 
@@ -20,9 +20,125 @@
 
 	let remainTime = $derived(opp.time_minutes - branch.cost_time);
 	let remainMoney = $derived(opp.money_amount - branch.cost_money);
+
+	let isEditing = $state(false);
+	let editName = $state('');
+	let editCostTime = $state(0);
+	let editCostMoney = $state('');
+	let editOutcome = $state('');
+	let isSubmitting = $state(false);
+
+	function startEditing() {
+		editName = branch.name;
+		editCostTime = branch.cost_time;
+		editCostMoney = branch.cost_money > 0 ? branch.cost_money.toLocaleString('vi-VN') : '';
+		editOutcome = branch.outcome || '';
+		isEditing = true;
+	}
+
+	function cancelEditing() {
+		isEditing = false;
+	}
+
+	function handleCostMoneyInput(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const raw = input.value.replace(/\D/g, '');
+		editCostMoney = raw ? Number(raw).toLocaleString('vi-VN') : '';
+	}
 </script>
 
-{#if isChosen}
+{#if isEditing}
+	<!-- Inline Edit Form -->
+	<form
+		method="POST"
+		action="?/updateBranch"
+		use:enhance={() => {
+			isSubmitting = true;
+			return async ({ update, result }) => {
+				isSubmitting = false;
+				if (result.type === 'success') {
+					isEditing = false;
+				}
+				await update();
+			};
+		}}
+		class="unified-note branch-card h-full p-4 border-2 border-amber-400 dark:border-amber-600 space-y-3 bg-amber-50/40 dark:bg-amber-950/20"
+		id="branch-edit-{branch.id}"
+	>
+		<input type="hidden" name="id" value={branch.id} />
+		<div class="flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-300">
+			<span class="flex items-center gap-1.5"><Pencil size={13} /> Sửa nhánh rẽ</span>
+		</div>
+
+		<div>
+			<label class="block text-xs font-semibold text-stone-700 dark:text-zinc-300 mb-1" for="edit-bname-{branch.id}">Tên nhánh</label>
+			<input
+				id="edit-bname-{branch.id}"
+				type="text"
+				name="name"
+				bind:value={editName}
+				required
+				class="w-full rounded-md border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm text-stone-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+			/>
+		</div>
+
+		<div class="grid grid-cols-2 gap-2">
+			<div>
+				<label class="block text-xs font-semibold text-stone-700 dark:text-zinc-300 mb-1" for="edit-btime-{branch.id}">Thời gian (p)</label>
+				<input
+					id="edit-btime-{branch.id}"
+					type="number"
+					name="cost_time"
+					bind:value={editCostTime}
+					min="0"
+					required
+					class="w-full rounded-md border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm text-stone-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+				/>
+			</div>
+			<div>
+				<label class="block text-xs font-semibold text-stone-700 dark:text-zinc-300 mb-1" for="edit-bmoney-{branch.id}">Tiền (đ)</label>
+				<input
+					id="edit-bmoney-{branch.id}"
+					type="text"
+					name="cost_money"
+					value={editCostMoney}
+					oninput={handleCostMoneyInput}
+					class="w-full rounded-md border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm text-stone-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+				/>
+			</div>
+		</div>
+
+		<div>
+			<label class="block text-xs font-semibold text-stone-700 dark:text-zinc-300 mb-1" for="edit-boutcome-{branch.id}">Cảm xúc / Kết quả</label>
+			<input
+				id="edit-boutcome-{branch.id}"
+				type="text"
+				name="outcome"
+				bind:value={editOutcome}
+				placeholder="vd: Hài lòng, thoải mái..."
+				class="w-full rounded-md border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm text-stone-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+			/>
+		</div>
+
+		<div class="flex items-center justify-end gap-2 pt-1">
+			<button
+				type="button"
+				onclick={cancelEditing}
+				disabled={isSubmitting}
+				class="rounded-md border border-stone-300 dark:border-zinc-700 px-3 py-1 text-xs font-medium text-stone-600 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition"
+			>
+				Hủy
+			</button>
+			<button
+				type="submit"
+				disabled={isSubmitting}
+				class="rounded-md bg-amber-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-amber-700 disabled:opacity-50 transition"
+			>
+				{isSubmitting ? 'Đang lưu...' : 'Lưu'}
+			</button>
+		</div>
+	</form>
+{:else if isChosen}
 	<!-- Chosen Branch Card (Hình 3: THỰC TẾ) -->
 	<div class="unified-note branch-card chosen h-full" id="branch-{branch.id}">
 		<div class="note-badge-tag">THỰC TẾ</div>
@@ -56,8 +172,16 @@
 
 				<button
 					type="button"
+					onclick={startEditing}
+					class="ml-1 flex cursor-pointer items-center rounded-md p-1.5 text-xs text-stone-400 transition hover:bg-amber-50 hover:text-amber-600 dark:text-zinc-500 dark:hover:bg-amber-950/40 dark:hover:text-amber-400"
+					title="Sửa nhánh"
+				>
+					<Pencil size={13} />
+				</button>
+				<button
+					type="button"
 					onclick={() => onDeleteBranch(branch.id, branch.name)}
-					class="ml-1 flex cursor-pointer items-center rounded-md p-1.5 text-xs text-stone-400 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-500 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
+					class="flex cursor-pointer items-center rounded-md p-1.5 text-xs text-stone-400 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-500 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
 					title="Xóa nhánh"
 				>
 					<Trash2 size={13} />
@@ -126,9 +250,20 @@
 						type="button"
 						onclick={(e) => {
 							e.stopPropagation();
+							startEditing();
+						}}
+						class="ml-1 flex cursor-pointer items-center rounded-md p-1.5 text-xs text-stone-400 transition hover:bg-amber-50 hover:text-amber-600 dark:text-zinc-500 dark:hover:bg-amber-950/40 dark:hover:text-amber-400"
+						title="Sửa nhánh"
+					>
+						<Pencil size={13} />
+					</button>
+					<button
+						type="button"
+						onclick={(e) => {
+							e.stopPropagation();
 							onDeleteBranch(branch.id, branch.name);
 						}}
-						class="ml-1 flex cursor-pointer items-center rounded-md p-1.5 text-xs text-stone-400 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-500 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
+						class="flex cursor-pointer items-center rounded-md p-1.5 text-xs text-stone-400 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-500 dark:hover:bg-rose-950/40 dark:hover:text-rose-400"
 						title="Xóa nhánh"
 					>
 						<Trash2 size={13} />
@@ -148,4 +283,3 @@
 		</form>
 	</div>
 {/if}
-

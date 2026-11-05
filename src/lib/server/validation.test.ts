@@ -3,6 +3,8 @@ import * as v from 'valibot';
 import {
 	CreateOpportunitySchema,
 	CreateBranchSchema,
+	UpdateOpportunitySchema,
+	UpdateBranchSchema,
 	ChooseBranchSchema,
 	sanitizeAiSelections
 } from './validation';
@@ -50,6 +52,45 @@ describe('Validation Layer', () => {
 			outcome: 'Thoải mái'
 		});
 		expect(valid.success).toBe(true);
+	});
+
+	it('validates opportunity update inputs', () => {
+		const valid = v.safeParse(UpdateOpportunitySchema, {
+			id: 'opp-123',
+			title: 'Buổi sáng sửa đổi',
+			time_minutes: 60,
+			money_amount: 30000,
+			other_text: 'Đã khỏe hơn'
+		});
+		expect(valid.success).toBe(true);
+
+		const invalidMissingId = v.safeParse(UpdateOpportunitySchema, {
+			id: '',
+			title: 'Buổi sáng sửa đổi',
+			time_minutes: 60,
+			money_amount: 30000
+		});
+		expect(invalidMissingId.success).toBe(false);
+	});
+
+	it('validates branch update inputs', () => {
+		const valid = v.safeParse(UpdateBranchSchema, {
+			id: 'branch-123',
+			name: 'Tập gym thay vì đi bộ',
+			cost_time: 50,
+			cost_money: 10000,
+			outcome: 'Rất hăng hái'
+		});
+		expect(valid.success).toBe(true);
+
+		const invalidNegativeTime = v.safeParse(UpdateBranchSchema, {
+			id: 'branch-123',
+			name: 'Tập gym',
+			cost_time: -5,
+			cost_money: 0,
+			outcome: ''
+		});
+		expect(invalidNegativeTime.success).toBe(false);
 	});
 
 	it('strictly prevents AI from fabricating non-existent branch IDs or mixing branches', () => {

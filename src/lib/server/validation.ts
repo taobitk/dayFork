@@ -48,6 +48,48 @@ export const CreateBranchSchema = v.object({
 	)
 });
 
+export const UpdateOpportunitySchema = v.object({
+	id: v.pipe(v.string(), v.minLength(1, 'ID cơ hội không hợp lệ')),
+	title: v.pipe(
+		v.string(),
+		v.minLength(1, 'Tên cơ hội không được để trống'),
+		v.maxLength(120, 'Tên cơ hội tối đa 120 ký tự')
+	),
+	time_minutes: v.pipe(
+		v.number(),
+		v.minValue(0, 'Thời gian không được âm')
+	),
+	money_amount: v.pipe(
+		v.number(),
+		v.minValue(0, 'Tiền không được âm')
+	),
+	other_text: v.optional(
+		v.pipe(v.string(), v.maxLength(300, 'Ghi chú khác tối đa 300 ký tự')),
+		''
+	)
+});
+
+export const UpdateBranchSchema = v.object({
+	id: v.pipe(v.string(), v.minLength(1, 'ID nhánh không hợp lệ')),
+	name: v.pipe(
+		v.string(),
+		v.minLength(1, 'Tên nhánh không được để trống'),
+		v.maxLength(150, 'Tên nhánh tối đa 150 ký tự')
+	),
+	cost_time: v.pipe(
+		v.number(),
+		v.minValue(0, 'Thời gian tiêu hao không được âm')
+	),
+	cost_money: v.pipe(
+		v.number(),
+		v.minValue(0, 'Tiền tiêu hao không được âm')
+	),
+	outcome: v.pipe(
+		v.string(),
+		v.maxLength(300, 'Kết quả nhận lại tối đa 300 ký tự')
+	)
+});
+
 export const ChooseBranchSchema = v.object({
 	opportunity_id: v.pipe(v.string(), v.minLength(1)),
 	branch_id: v.pipe(v.string(), v.minLength(1))

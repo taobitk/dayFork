@@ -141,6 +141,59 @@ export async function createOpportunity(
 	};
 }
 
+export async function updateOpportunity(
+	db: D1Database,
+	input: {
+		id: string;
+		title: string;
+		time_minutes: number;
+		money_amount: number;
+		other_text?: string;
+	},
+	userId: string
+): Promise<Opportunity> {
+	const opp = await db
+		.prepare('SELECT date, created_at FROM opportunities WHERE id = ? AND user_id = ?')
+		.bind(input.id, userId)
+		.first<{ date: string; created_at: number }>();
+
+	if (!opp) {
+		throw new Error('Cơ hội không tồn tại hoặc bạn không có quyền thao tác');
+	}
+
+	const other_text = (input.other_text || '').trim();
+	await db
+		.prepare(
+			'UPDATE opportunities SET title = ?, time_minutes = ?, money_amount = ?, other_text = ? WHERE id = ? AND user_id = ?'
+		)
+		.bind(
+			input.title.trim(),
+			input.time_minutes,
+			input.money_amount,
+			other_text,
+			input.id,
+			userId
+		)
+		.run();
+
+	// Invalidate AI paths for this user and date
+	await db
+		.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+		.bind(opp.date, userId)
+		.run();
+
+	return {
+		id: input.id,
+		user_id: userId,
+		date: opp.date,
+		title: input.title.trim(),
+		time_minutes: input.time_minutes,
+		money_amount: input.money_amount,
+		other_text,
+		created_at: opp.created_at
+	};
+}
+
 export async function deleteOpportunity(
 	db: D1Database,
 	id: string,
@@ -236,6 +289,68 @@ export async function createBranch(
 		outcome: input.outcome.trim(),
 		is_chosen: 0,
 		created_at
+	};
+}
+
+export async function updateBranch(
+	db: D1Database,
+	input: {
+		id: string;
+		name: string;
+		cost_time: number;
+		cost_money: number;
+		outcome: string;
+	},
+	userId: string
+): Promise<Branch> {
+	const branch = await db
+		.prepare(
+			`SELECT b.id, b.opportunity_id, b.is_chosen, b.created_at, o.date 
+			 FROM branches b 
+			 JOIN opportunities o ON b.opportunity_id = o.id 
+			 WHERE b.id = ? AND o.user_id = ?`
+		)
+		.bind(input.id, userId)
+		.first<{
+			id: string;
+			opportunity_id: string;
+			is_chosen: number;
+			created_at: number;
+			date: string;
+		}>();
+
+	if (!branch) {
+		throw new Error('Nhánh rẽ không tồn tại hoặc bạn không có quyền thao tác');
+	}
+
+	await db
+		.prepare(
+			'UPDATE branches SET name = ?, cost_time = ?, cost_money = ?, outcome = ? WHERE id = ?'
+		)
+		.bind(
+			input.name.trim(),
+			input.cost_time,
+			input.cost_money,
+			input.outcome.trim(),
+			input.id
+		)
+		.run();
+
+	// Invalidate AI paths for this user and date
+	await db
+		.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+		.bind(branch.date, userId)
+		.run();
+
+	return {
+		id: input.id,
+		opportunity_id: branch.opportunity_id,
+		name: input.name.trim(),
+		cost_time: input.cost_time,
+		cost_money: input.cost_money,
+		outcome: input.outcome.trim(),
+		is_chosen: branch.is_chosen,
+		created_at: branch.created_at
 	};
 }
 
