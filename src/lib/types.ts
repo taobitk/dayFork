@@ -1,5 +1,6 @@
 export interface Opportunity {
 	id: string;
+	user_id?: string;
 	date: string; // 'YYYY-MM-DD'
 	title: string;
 	time_minutes: number;
@@ -33,6 +34,7 @@ export interface AiBranchSelection {
 
 export interface AiPath {
 	id: string;
+	user_id?: string;
 	date: string; // 'YYYY-MM-DD'
 	perspective: Perspective;
 	branch_selections: AiBranchSelection[];

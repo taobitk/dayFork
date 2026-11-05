@@ -1,4 +1,5 @@
 import type { Handle } from '@sveltejs/kit/hooks';
+import { redirect } from '@sveltejs/kit';
 import { env } from 'cloudflare:workers';
 import { validateSession } from '#lib/server/db/auth';
 
@@ -36,6 +37,24 @@ export const handle: Handle = async ({ event, resolve }) => {
 		} catch (err) {
 			console.error('Error validating session in hook:', err);
 		}
+	}
+
+	const pathname = event.url.pathname;
+	const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/api/auth');
+	const isStaticAsset = pathname.startsWith('/_app') || pathname.includes('.');
+
+	if (!event.locals.user && !isAuthRoute && !isStaticAsset) {
+		if (pathname.startsWith('/api/')) {
+			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+				status: 401,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+		throw redirect(303, '/login');
+	}
+
+	if (event.locals.user && pathname === '/login') {
+		throw redirect(303, '/');
 	}
 
 	return resolve(event);

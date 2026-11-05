@@ -10,10 +10,16 @@ function generateId(): string {
 	return crypto.randomUUID();
 }
 
-export async function getDayData(db: D1Database, date: string): Promise<DayData> {
+export async function getDayData(
+	db: D1Database,
+	date: string,
+	userId: string
+): Promise<DayData> {
 	const oppsResult = await db
-		.prepare('SELECT * FROM opportunities WHERE date = ? ORDER BY created_at ASC')
-		.bind(date)
+		.prepare(
+			'SELECT * FROM opportunities WHERE date = ? AND user_id = ? ORDER BY created_at ASC'
+		)
+		.bind(date, userId)
 		.all<Opportunity>();
 
 	const opps = oppsResult.results || [];
@@ -29,7 +35,9 @@ export async function getDayData(db: D1Database, date: string): Promise<DayData>
 	// Fetch all branches for these opportunities
 	const placeholders = oppIds.map(() => '?').join(',');
 	const branchesResult = await db
-		.prepare(`SELECT * FROM branches WHERE opportunity_id IN (${placeholders}) ORDER BY created_at ASC`)
+		.prepare(
+			`SELECT * FROM branches WHERE opportunity_id IN (${placeholders}) ORDER BY created_at ASC`
+		)
 		.bind(...oppIds)
 		.all<Branch>();
 
@@ -47,12 +55,13 @@ export async function getDayData(db: D1Database, date: string): Promise<DayData>
 		branches: branchesByOppId.get(o.id) || []
 	}));
 
-	// Fetch cached AI paths
+	// Fetch cached AI paths for this user and date
 	const aiPathsResult = await db
-		.prepare('SELECT * FROM ai_paths WHERE date = ?')
-		.bind(date)
+		.prepare('SELECT * FROM ai_paths WHERE date = ? AND user_id = ?')
+		.bind(date, userId)
 		.all<{
 			id: string;
+			user_id: string;
 			date: string;
 			perspective: 'best' | 'comfort';
 			branch_selections: string;
@@ -65,6 +74,7 @@ export async function getDayData(db: D1Database, date: string): Promise<DayData>
 		try {
 			aiPathsMap[row.perspective] = {
 				id: row.id,
+				user_id: row.user_id,
 				date: row.date,
 				perspective: row.perspective,
 				branch_selections: JSON.parse(row.branch_selections),
@@ -85,23 +95,43 @@ export async function getDayData(db: D1Database, date: string): Promise<DayData>
 
 export async function createOpportunity(
 	db: D1Database,
-	input: { date: string; title: string; time_minutes: number; money_amount: number; other_text?: string }
+	input: {
+		date: string;
+		title: string;
+		time_minutes: number;
+		money_amount: number;
+		other_text?: string;
+	},
+	userId: string
 ): Promise<Opportunity> {
 	const id = generateId();
 	const created_at = Date.now();
 	const other_text = (input.other_text || '').trim();
 	await db
 		.prepare(
-			'INSERT INTO opportunities (id, date, title, time_minutes, money_amount, other_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+			'INSERT INTO opportunities (id, user_id, date, title, time_minutes, money_amount, other_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 		)
-		.bind(id, input.date, input.title.trim(), input.time_minutes, input.money_amount, other_text, created_at)
+		.bind(
+			id,
+			userId,
+			input.date,
+			input.title.trim(),
+			input.time_minutes,
+			input.money_amount,
+			other_text,
+			created_at
+		)
 		.run();
 
-	// Invalidate AI paths for this date
-	await db.prepare('DELETE FROM ai_paths WHERE date = ?').bind(input.date).run();
+	// Invalidate AI paths for this user and date
+	await db
+		.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+		.bind(input.date, userId)
+		.run();
 
 	return {
 		id,
+		user_id: userId,
 		date: input.date,
 		title: input.title.trim(),
 		time_minutes: input.time_minutes,
@@ -111,27 +141,44 @@ export async function createOpportunity(
 	};
 }
 
-export async function deleteOpportunity(db: D1Database, id: string): Promise<void> {
-	// Find date first to invalidate AI path
+export async function deleteOpportunity(
+	db: D1Database,
+	id: string,
+	userId: string
+): Promise<void> {
 	const opp = await db
-		.prepare('SELECT date FROM opportunities WHERE id = ?')
-		.bind(id)
+		.prepare('SELECT date FROM opportunities WHERE id = ? AND user_id = ?')
+		.bind(id, userId)
 		.first<{ date: string }>();
 
 	if (opp) {
 		await db.batch([
-			db.prepare('DELETE FROM opportunities WHERE id = ?').bind(id),
+			db.prepare('DELETE FROM opportunities WHERE id = ? AND user_id = ?').bind(id, userId),
 			db.prepare('DELETE FROM branches WHERE opportunity_id = ?').bind(id),
-			db.prepare('DELETE FROM ai_paths WHERE date = ?').bind(opp.date)
+			db
+				.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+				.bind(opp.date, userId)
 		]);
 	}
 }
 
-export async function clearDay(db: D1Database, date: string): Promise<void> {
+export async function clearDay(
+	db: D1Database,
+	date: string,
+	userId: string
+): Promise<void> {
 	await db.batch([
-		db.prepare('DELETE FROM branches WHERE opportunity_id IN (SELECT id FROM opportunities WHERE date = ?)').bind(date),
-		db.prepare('DELETE FROM opportunities WHERE date = ?').bind(date),
-		db.prepare('DELETE FROM ai_paths WHERE date = ?').bind(date)
+		db
+			.prepare(
+				'DELETE FROM branches WHERE opportunity_id IN (SELECT id FROM opportunities WHERE date = ? AND user_id = ?)'
+			)
+			.bind(date, userId),
+		db
+			.prepare('DELETE FROM opportunities WHERE date = ? AND user_id = ?')
+			.bind(date, userId),
+		db
+			.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+			.bind(date, userId)
 	]);
 }
 
@@ -143,13 +190,22 @@ export async function createBranch(
 		cost_time: number;
 		cost_money: number;
 		outcome: string;
-	}
+	},
+	userId: string
 ): Promise<Branch> {
+	// Verify user owns the opportunity
+	const opp = await db
+		.prepare('SELECT date FROM opportunities WHERE id = ? AND user_id = ?')
+		.bind(input.opportunity_id, userId)
+		.first<{ date: string }>();
+
+	if (!opp) {
+		throw new Error('Cơ hội không tồn tại hoặc bạn không có quyền thao tác');
+	}
+
 	const id = generateId();
 	const created_at = Date.now();
 
-	// Check if this is the first branch of the opportunity.
-	// We don't auto-choose, let user choose explicitly or default to 0
 	await db
 		.prepare(
 			'INSERT INTO branches (id, opportunity_id, name, cost_time, cost_money, outcome, is_chosen, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?)'
@@ -165,14 +221,11 @@ export async function createBranch(
 		)
 		.run();
 
-	// Find date to invalidate AI path
-	const opp = await db
-		.prepare('SELECT date FROM opportunities WHERE id = ?')
-		.bind(input.opportunity_id)
-		.first<{ date: string }>();
-	if (opp) {
-		await db.prepare('DELETE FROM ai_paths WHERE date = ?').bind(opp.date).run();
-	}
+	// Invalidate AI path
+	await db
+		.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+		.bind(opp.date, userId)
+		.run();
 
 	return {
 		id,
@@ -186,18 +239,27 @@ export async function createBranch(
 	};
 }
 
-export async function deleteBranch(db: D1Database, id: string): Promise<void> {
+export async function deleteBranch(
+	db: D1Database,
+	id: string,
+	userId: string
+): Promise<void> {
 	const branch = await db
 		.prepare(
-			'SELECT b.opportunity_id, o.date FROM branches b JOIN opportunities o ON b.opportunity_id = o.id WHERE b.id = ?'
+			`SELECT b.opportunity_id, o.date 
+			 FROM branches b 
+			 JOIN opportunities o ON b.opportunity_id = o.id 
+			 WHERE b.id = ? AND o.user_id = ?`
 		)
-		.bind(id)
+		.bind(id, userId)
 		.first<{ opportunity_id: string; date: string }>();
 
 	if (branch) {
 		await db.batch([
 			db.prepare('DELETE FROM branches WHERE id = ?').bind(id),
-			db.prepare('DELETE FROM ai_paths WHERE date = ?').bind(branch.date)
+			db
+				.prepare('DELETE FROM ai_paths WHERE date = ? AND user_id = ?')
+				.bind(branch.date, userId)
 		]);
 	}
 }
@@ -205,12 +267,26 @@ export async function deleteBranch(db: D1Database, id: string): Promise<void> {
 export async function chooseBranch(
 	db: D1Database,
 	opportunity_id: string,
-	branch_id: string
+	branch_id: string,
+	userId: string
 ): Promise<void> {
-	// Set all branches in this opportunity to is_chosen = 0, then set target branch to 1
+	// Verify user owns the opportunity
+	const opp = await db
+		.prepare('SELECT id FROM opportunities WHERE id = ? AND user_id = ?')
+		.bind(opportunity_id, userId)
+		.first<{ id: string }>();
+
+	if (!opp) {
+		throw new Error('Cơ hội không tồn tại hoặc bạn không có quyền thao tác');
+	}
+
 	await db.batch([
-		db.prepare('UPDATE branches SET is_chosen = 0 WHERE opportunity_id = ?').bind(opportunity_id),
-		db.prepare('UPDATE branches SET is_chosen = 1 WHERE id = ? AND opportunity_id = ?').bind(branch_id, opportunity_id)
+		db
+			.prepare('UPDATE branches SET is_chosen = 0 WHERE opportunity_id = ?')
+			.bind(opportunity_id),
+		db
+			.prepare('UPDATE branches SET is_chosen = 1 WHERE id = ? AND opportunity_id = ?')
+			.bind(branch_id, opportunity_id)
 	]);
 }
 
@@ -221,21 +297,30 @@ export async function saveAiPaths(
 		perspective: 'best' | 'comfort';
 		branch_selections: Array<{ opportunity_id: string; branch_id: string; reflection: string }>;
 		summary: string;
-	}>
+	}>,
+	userId: string
 ): Promise<void> {
 	const statements = paths.map((p) => {
 		const id = generateId();
 		const now = Date.now();
 		return db
 			.prepare(
-				`INSERT INTO ai_paths (id, date, perspective, branch_selections, summary, created_at)
-				 VALUES (?, ?, ?, ?, ?, ?)
-				 ON CONFLICT(date, perspective) DO UPDATE SET
+				`INSERT INTO ai_paths (id, user_id, date, perspective, branch_selections, summary, created_at)
+				 VALUES (?, ?, ?, ?, ?, ?, ?)
+				 ON CONFLICT(user_id, date, perspective) DO UPDATE SET
 				 branch_selections = excluded.branch_selections,
 				 summary = excluded.summary,
 				 created_at = excluded.created_at`
 			)
-			.bind(id, date, p.perspective, JSON.stringify(p.branch_selections), p.summary, now);
+			.bind(
+				id,
+				userId,
+				date,
+				p.perspective,
+				JSON.stringify(p.branch_selections),
+				p.summary,
+				now
+			);
 	});
 
 	if (statements.length > 0) {
@@ -246,15 +331,18 @@ export async function saveAiPaths(
 export async function getRangeData(
 	db: D1Database,
 	startDate: string,
-	endDate: string
+	endDate: string,
+	userId: string
 ): Promise<{
 	opportunities: Opportunity[];
 	branches: Branch[];
 	aiPaths: AiPath[];
 }> {
 	const opps = await db
-		.prepare('SELECT * FROM opportunities WHERE date >= ? AND date <= ? ORDER BY date ASC, created_at ASC')
-		.bind(startDate, endDate)
+		.prepare(
+			'SELECT * FROM opportunities WHERE date >= ? AND date <= ? AND user_id = ? ORDER BY date ASC, created_at ASC'
+		)
+		.bind(startDate, endDate, userId)
 		.all<Opportunity>();
 
 	const oppList = (opps.results || []).map((o) => ({
@@ -268,15 +356,20 @@ export async function getRangeData(
 	const oppIds = oppList.map((o) => o.id);
 	const placeholders = oppIds.map(() => '?').join(',');
 	const branches = await db
-		.prepare(`SELECT * FROM branches WHERE opportunity_id IN (${placeholders}) ORDER BY created_at ASC`)
+		.prepare(
+			`SELECT * FROM branches WHERE opportunity_id IN (${placeholders}) ORDER BY created_at ASC`
+		)
 		.bind(...oppIds)
 		.all<Branch>();
 
 	const aiPaths = await db
-		.prepare('SELECT * FROM ai_paths WHERE date >= ? AND date <= ?')
-		.bind(startDate, endDate)
+		.prepare(
+			'SELECT * FROM ai_paths WHERE date >= ? AND date <= ? AND user_id = ?'
+		)
+		.bind(startDate, endDate, userId)
 		.all<{
 			id: string;
+			user_id: string;
 			date: string;
 			perspective: 'best' | 'comfort';
 			branch_selections: string;
@@ -286,6 +379,7 @@ export async function getRangeData(
 
 	const parsedAiPaths: AiPath[] = (aiPaths.results || []).map((row) => ({
 		id: row.id,
+		user_id: row.user_id,
 		date: row.date,
 		perspective: row.perspective,
 		branch_selections: JSON.parse(row.branch_selections || '[]'),

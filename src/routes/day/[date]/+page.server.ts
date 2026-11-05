@@ -17,24 +17,29 @@ import {
 } from '#lib/server/validation';
 import * as v from 'valibot';
 
-export const load: PageServerLoad = async ({ params, platform }) => {
+export const load: PageServerLoad = async ({ params, platform, locals }) => {
 	const { date } = params;
 	if (!isValidISODate(date)) {
 		throw redirect(307, `/day/${getTodayISO()}`);
+	}
+
+	if (!locals.user) {
+		throw redirect(303, '/login');
 	}
 
 	if (!platform?.env?.DB) {
 		throw error(500, 'Cloudflare D1 Database binding "DB" is not available.');
 	}
 
-	const dayData = await getDayData(platform.env.DB, date);
+	const dayData = await getDayData(platform.env.DB, date, locals.user.id);
 	return {
 		dayData
 	};
 };
 
 export const actions: Actions = {
-	addOpportunity: async ({ request, params, platform }) => {
+	addOpportunity: async ({ request, params, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
 
 		const formData = await request.formData();
@@ -57,22 +62,24 @@ export const actions: Actions = {
 			return fail(400, { message: errorMsg, formType: 'addOpportunity' });
 		}
 
-		await createOpportunity(platform.env.DB, parsed.output);
+		await createOpportunity(platform.env.DB, parsed.output, locals.user.id);
 		return { success: true };
 	},
 
-	deleteOpportunity: async ({ request, platform }) => {
+	deleteOpportunity: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
 
 		const formData = await request.formData();
 		const id = String(formData.get('id') || '');
 		if (!id) return fail(400, { message: 'ID cơ hội không được trống' });
 
-		await deleteOpportunity(platform.env.DB, id);
+		await deleteOpportunity(platform.env.DB, id, locals.user.id);
 		return { success: true };
 	},
 
-	addBranch: async ({ request, platform }) => {
+	addBranch: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
 
 		const formData = await request.formData();
@@ -96,22 +103,29 @@ export const actions: Actions = {
 			return fail(400, { message: errorMsg, formType: 'addBranch', opportunity_id });
 		}
 
-		await createBranch(platform.env.DB, parsed.output);
-		return { success: true, addedFor: opportunity_id };
+		try {
+			await createBranch(platform.env.DB, parsed.output, locals.user.id);
+			return { success: true, addedFor: opportunity_id };
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : 'Thao tác không thành công';
+			return fail(403, { message, formType: 'addBranch', opportunity_id });
+		}
 	},
 
-	deleteBranch: async ({ request, platform }) => {
+	deleteBranch: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
 
 		const formData = await request.formData();
 		const id = String(formData.get('id') || '');
 		if (!id) return fail(400, { message: 'ID nhánh không được trống' });
 
-		await deleteBranch(platform.env.DB, id);
+		await deleteBranch(platform.env.DB, id, locals.user.id);
 		return { success: true };
 	},
 
-	chooseBranch: async ({ request, platform }) => {
+	chooseBranch: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
 
 		const formData = await request.formData();
@@ -123,13 +137,19 @@ export const actions: Actions = {
 			return fail(400, { message: 'Dữ liệu lựa chọn không hợp lệ' });
 		}
 
-		await chooseBranch(platform.env.DB, opportunity_id, branch_id);
-		return { success: true };
+		try {
+			await chooseBranch(platform.env.DB, opportunity_id, branch_id, locals.user.id);
+			return { success: true };
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : 'Thao tác không thành công';
+			return fail(403, { message });
+		}
 	},
 
-	clearDay: async ({ params, platform }) => {
+	clearDay: async ({ params, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
-		await clearDay(platform.env.DB, params.date);
+		await clearDay(platform.env.DB, params.date, locals.user.id);
 		return { success: true };
 	}
 };

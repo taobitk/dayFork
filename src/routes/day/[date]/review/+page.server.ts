@@ -4,17 +4,21 @@ import { isValidISODate, getTodayISO } from '#lib/date';
 import { getDayData, deleteOpportunity, clearDay } from '#lib/server/db';
 import type { OpportunityComparison } from '#lib/types';
 
-export const load: PageServerLoad = async ({ params, platform }) => {
+export const load: PageServerLoad = async ({ params, platform, locals }) => {
 	const { date } = params;
 	if (!isValidISODate(date)) {
 		throw redirect(307, `/day/${getTodayISO()}/review`);
+	}
+
+	if (!locals.user) {
+		throw redirect(303, '/login');
 	}
 
 	if (!platform?.env?.DB) {
 		throw error(500, 'Database binding "DB" is not available.');
 	}
 
-	const dayData = await getDayData(platform.env.DB, date);
+	const dayData = await getDayData(platform.env.DB, date, locals.user.id);
 	const bestSelections = new Map<string, { branch_id: string; reflection: string }>();
 	for (const s of dayData.aiPaths.best?.branch_selections || []) {
 		bestSelections.set(s.opportunity_id, s);
@@ -62,20 +66,22 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 };
 
 export const actions: Actions = {
-	deleteOpportunity: async ({ request, platform }) => {
+	deleteOpportunity: async ({ request, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
 
 		const formData = await request.formData();
 		const id = String(formData.get('id') || '');
 		if (!id) return fail(400, { message: 'ID cơ hội không được trống' });
 
-		await deleteOpportunity(platform.env.DB, id);
+		await deleteOpportunity(platform.env.DB, id, locals.user.id);
 		return { success: true };
 	},
 
-	clearDay: async ({ params, platform }) => {
+	clearDay: async ({ params, platform, locals }) => {
+		if (!locals.user) return fail(401, { message: 'Vui lòng đăng nhập' });
 		if (!platform?.env?.DB) return fail(500, { message: 'Database not available' });
-		await clearDay(platform.env.DB, params.date);
+		await clearDay(platform.env.DB, params.date, locals.user.id);
 		return { success: true };
 	}
 };

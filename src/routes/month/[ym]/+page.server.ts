@@ -4,11 +4,15 @@ import { getMonthRange, getTodayISO } from '#lib/date';
 import { getRangeData } from '#lib/server/db';
 import { computePeriodStats } from '#lib/server/stats';
 
-export const load: PageServerLoad = async ({ params, platform }) => {
+export const load: PageServerLoad = async ({ params, platform, locals }) => {
 	const { ym } = params;
 	if (!/^\d{4}-\d{2}$/.test(ym)) {
 		const todayYm = getTodayISO().slice(0, 7);
 		throw redirect(307, `/month/${todayYm}`);
+	}
+
+	if (!locals.user) {
+		throw redirect(303, '/login');
 	}
 
 	if (!platform?.env?.DB) {
@@ -16,7 +20,7 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 	}
 
 	const monthRange = getMonthRange(ym);
-	const rangeData = await getRangeData(platform.env.DB, monthRange.start, monthRange.end);
+	const rangeData = await getRangeData(platform.env.DB, monthRange.start, monthRange.end, locals.user.id);
 	const stats = computePeriodStats(
 		rangeData.opportunities,
 		rangeData.branches,

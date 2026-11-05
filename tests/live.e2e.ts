@@ -13,7 +13,23 @@ test.describe('DayFork Live Production E2E Suite', () => {
 			}
 		});
 
-		// 1. Visit root page and verify redirection to today
+		// 1a. Test Auth Gate: unauthenticated request redirects to /login
+		await page.goto(`${BASE_URL}/day/2026-11-05`);
+		await expect(page).toHaveURL(/\/login/);
+		await expect(page.locator('h1')).toContainText('DayFork');
+		await expect(page.locator('#google-btn-container')).toBeAttached();
+
+		// 1b. Inject authenticated E2E session cookie
+		await page.context().addCookies([
+			{
+				name: 'session_id',
+				value: 'e2e-test-session',
+				domain: new URL(BASE_URL).hostname,
+				path: '/'
+			}
+		]);
+
+		// 1c. Visit root page with authenticated session and verify redirection to today
 		await page.goto(BASE_URL);
 		await expect(page).toHaveTitle(/DayFork/);
 		await expect(page.locator('header')).toContainText('DayFork');
@@ -179,8 +195,8 @@ test.describe('DayFork Live Production E2E Suite', () => {
 
 		await expect(page.locator(`text=${uniqueTitle}`)).toBeHidden({ timeout: 15000 });
 
-		// 11. Test /login page renders cleanly with Google GIS container
-		await page.click('header a[title="Đăng nhập"]');
+		// 11. Test logout button in header: click logout and verify redirection to /login
+		await page.click('button[title="Đăng xuất"]');
 		await expect(page).toHaveURL(/\/login/);
 		await expect(page.locator('h1')).toContainText('DayFork');
 		await expect(page.locator('#google-btn-container')).toBeAttached();
