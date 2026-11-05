@@ -8,7 +8,7 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		// Ensure E2E test user & session exist in remote D1 before running tests
 		try {
 			execSync(
-				`npx wrangler d1 execute dayfork-db --remote --command="INSERT INTO users (id, google_id, email, name, picture, created_at) VALUES ('e2e-user', 'e2e-google-sub', 'e2e@dayfork.test', 'DayFork Tester', '', 1700000000000) ON CONFLICT(id) DO NOTHING; INSERT INTO sessions (id, user_id, expires_at) VALUES ('e2e-test-session', 'e2e-user', 2500000000000) ON CONFLICT(id) DO UPDATE SET expires_at = 2500000000000;"`,
+				`npx wrangler d1 execute dayfork-db --remote --command="INSERT INTO users (id, google_id, email, name, picture, created_at) VALUES ('e2e-user', 'e2e-google-sub', 'e2e@dayfork.test', 'DayFork Tester', '', 1700000000000) ON CONFLICT(id) DO NOTHING; INSERT INTO sessions (id, user_id, expires_at) VALUES ('e2e-test-session', 'e2e-user', 2500000000000) ON CONFLICT(id) DO UPDATE SET expires_at = 2500000000000; DELETE FROM branches WHERE opportunity_id IN (SELECT id FROM opportunities WHERE user_id = 'e2e-user'); DELETE FROM opportunities WHERE user_id = 'e2e-user';"`,
 				{ stdio: 'ignore' }
 			);
 		} catch (err) {
@@ -159,14 +159,48 @@ test.describe('DayFork Live Production E2E Suite', () => {
 		const wireTop = oppBlock.locator('.wire-spine');
 		await expect(wireTop.first()).toBeVisible();
 
+		// 6c. Test Inline Edit Opportunity
+		await page.locator('button[title="Sửa cơ hội này"]').first().click();
+		const oppEditForm = page.locator('form[action="?/updateOpportunity"]');
+		await expect(oppEditForm).toBeVisible({ timeout: 5000 });
+		await oppEditForm.locator('input[name="title"]').fill(`${uniqueTitle} (Đã Sửa)`);
+		await oppEditForm.locator('input[name="time_minutes"]').fill('120');
+
+		const oppRespPromise = page.waitForResponse(
+			(r) => r.url().includes('updateOpportunity') && (r.status() === 200 || r.status() === 204),
+			{ timeout: 15000 }
+		);
+		await oppEditForm.locator('button[type="submit"]:has-text("Lưu")').click();
+		await oppRespPromise;
+
+		const editedCard = page.locator('.opp-parent-card', { hasText: `${uniqueTitle} (Đã Sửa)` });
+		await expect(editedCard).toBeVisible({ timeout: 15000 });
+		await expect(editedCard).toContainText('120p');
+
+		// 6d. Test Inline Edit Branch
+		const activeBranch = page.locator('.branch-card.chosen');
+		await activeBranch.locator('button[title="Sửa nhánh"]').click();
+		const branchEditForm = page.locator('form[action="?/updateBranch"]');
+		await expect(branchEditForm).toBeVisible({ timeout: 5000 });
+		await branchEditForm.locator('input[name="name"]').fill('Xem phim tài liệu tại nhà');
+
+		const branchRespPromise = page.waitForResponse(
+			(r) => r.url().includes('updateBranch') && (r.status() === 200 || r.status() === 204),
+			{ timeout: 15000 }
+		);
+		await branchEditForm.locator('button[type="submit"]:has-text("Lưu")').click();
+		await branchRespPromise;
+
+		await expect(page.locator('.col-start-2 .branch-card', { hasText: 'Xem phim tài liệu tại nhà' })).toBeVisible({ timeout: 15000 });
+
 		// 7. Go to Ngã Rẽ review page
 		await page.click('a[title="Ngã Rẽ"]');
 		await expect(page).toHaveURL(/.*\/review/);
 		await expect(page.locator('h1')).toContainText('Ngã Rẽ');
 
-		// Check Column 1 (Thực Tế) contains the chosen branch ("Xem phim tại nhà") and context note
+		// Check Column 1 (Thực Tế) contains the chosen branch ("Xem phim tài liệu tại nhà") and context note
 		const compCard = page.locator('.bg-white.rounded-2xl', { hasText: uniqueTitle });
-		await expect(compCard).toContainText('Xem phim tại nhà');
+		await expect(compCard).toContainText('Xem phim tài liệu tại nhà');
 		await expect(compCard).toContainText(contextNote);
 		await expect(compCard).toContainText('Thực Tế');
 		await expect(compCard).toContainText('Hiệu Quả');
