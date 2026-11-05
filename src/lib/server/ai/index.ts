@@ -21,18 +21,17 @@ function generateFallbackPaths(dayData: DayData): GeneratedPathsResult['paths'] 
 	for (const opp of dayData.opportunities) {
 		if (opp.branches.length === 0) continue;
 
-		// Best: prefer branch with lowest money cost and non-zero outcome if possible
-		const sortedForBest = [...opp.branches].sort((a, b) => a.cost_money - b.cost_money || a.cost_time - b.cost_time);
+		// Best: prefer branch with substantive outcome / achievements
+		const sortedForBest = [...opp.branches].sort((a, b) => (b.outcome?.length || 0) - (a.outcome?.length || 0));
 		const bestBranch = sortedForBest[0];
 		bestSelections.push({
 			opportunity_id: opp.id,
 			branch_id: bestBranch.id,
-			reflection: `Nếu chọn ${bestBranch.name}, bạn sẽ đạt hiệu quả tốt về tài nguyên và giữ được sự tập trung kỷ luật.`
+			reflection: `Nếu chọn ${bestBranch.name}, bạn sẽ tạo ra kết quả thực chất và giữ vững tiến độ dài hạn.`
 		});
 
-		// Comfort: prefer branch with lowest time cost or most relaxing feel
-		const sortedForComfort = [...opp.branches].sort((a, b) => a.cost_time - b.cost_time);
-		const comfortBranch = sortedForComfort[0];
+		// Comfort: prefer relaxing / soothing outcome
+		const comfortBranch = opp.branches[opp.branches.length - 1];
 		comfortSelections.push({
 			opportunity_id: opp.id,
 			branch_id: comfortBranch.id,
@@ -44,12 +43,12 @@ function generateFallbackPaths(dayData: DayData): GeneratedPathsResult['paths'] 
 		{
 			perspective: 'best',
 			branch_selections: bestSelections,
-			summary: 'Hành trình Hiệu Quả: Ưu tiên bảo toàn tài nguyên và duy trì sự kỷ luật cân bằng.'
+			summary: 'Hành trình Hiệu Quả: Ưu tiên giá trị thực chất và duy trì tiến độ hoàn thành mục tiêu.'
 		},
 		{
 			perspective: 'comfort',
 			branch_selections: comfortSelections,
-			summary: 'Hành trình Thả Lỏng: Lắng nghe cảm xúc để bạn cảm thấy thảnh thơi và dễ chịu nhất.'
+			summary: 'Hành trình Thả Lỏng: Lắng nghe cảm xúc để bạn cảm thấy thảnh thơi và tái tạo năng lượng.'
 		}
 	];
 }
@@ -97,17 +96,26 @@ export async function generateDayPaths(
 		})
 		.join('\n\n');
 
-	const systemPrompt = `Bạn là cố vấn phản tư DayFork. Nhiệm vụ của bạn là xem xét các cơ hội và các nhánh lựa chọn của người dùng trong một ngày, sau đó dựng nên 2 GÓC NHÌN ĐỘC LẬP:
-1. "best" (Hiệu Quả): Góc nhìn tối ưu tài nguyên, sức khỏe, tri thức hoặc tiến độ công việc một cách sáng suốt.
-2. "comfort" (Thả Lỏng): Góc nhìn nâng đỡ tâm lý, giảm căng thẳng, ưu tiên sự thoải mái và nạp lại năng lượng.
+	const systemPrompt = `Bạn là bộ máy giả lập và phản tư DayFork. Nhiệm vụ DUY NHẤT của bạn là phân tích các cơ hội và các nhánh lựa chọn trong ngày, sau đó xuất ra ĐÚNG 1 JSON chứa 2 góc nhìn độc lập ("best" và "comfort").
 
-QUY TẮC BẮT BUỘC:
-- Nếu cơ hội có "Ngữ cảnh/Ghi chú" (ví dụ: đang mệt, trời mưa, tâm trạng chùng xuống...), hãy thấu hiểu hoàn cảnh thực tế để đưa ra lựa chọn và lời phản tư hợp lý nhất cho từng góc nhìn, tuyệt đối không chấm điểm, phán xét hay tự bịa đặt nhánh mới.
+TIÊU CHÍ ƯU TIÊN KHI CHỌN NHÁNH:
+1. Góc nhìn "best" (Hiệu Quả):
+   - ƯU TIÊN GIÁ TRỊ THỰC CHẤT & KẾT QUẢ DÀI HẠN: Đọc kỹ tên nhánh và phần "Nhận lại" (outcome). Ưu tiên nhánh tạo ra thành quả cụ thể (hoàn thành sản phẩm, học tri thức mới, giải quyết dứt điểm công việc, rèn luyện sức khỏe).
+   - TUYỆT ĐỐI KHÔNG SO SÁNH SỐ HỌC CƠ HỌC: Không được coi việc tốn ít phút hơn là tốt hơn (90 phút học bài hay 60 phút ngồi code tạo ra giá trị lớn hơn nhiều so với việc chỉ ngồi không tiết kiệm thời gian).
+   - TÔN TRỌNG NGỮ CẢNH: Nếu người dùng ghi chú "đang kiệt sức, ốm, mệt...", hiệu quả là chọn nhánh vừa sức để phục hồi bền vững thay vì gượng ép.
+
+2. Góc nhìn "comfort" (Thả Lỏng):
+   - ƯU TIÊN PHỤC HỒI NĂNG LƯỢNG & TÂM TRÍ: Chọn nhánh giúp giảm stress, nhẹ đầu, nuôi dưỡng cảm xúc tích cực (nghỉ ngơi, ngủ đủ, đi dạo, kết nối bạn bè, giải trí lành mạnh).
+   - Bỏ qua hoàn toàn áp lực về năng suất hay thời gian.
+
+3. Lời phản tư (reflection):
+   - 1-2 câu ngắn, bắt đầu bằng "Nếu chọn thì hôm đó tôi sẽ...".
+   - Phân tích sâu sắc sự đánh đổi thực tế giữa các lựa chọn, cấm trả lời máy móc kiểu "tiết kiệm được X phút".
+
+QUY TẮC CẤU TRÚC JSON (BẮT BUỘC):
 - CHỈ ĐƯỢC CHỌN ID NHÁNH CÓ SẴN trong từng cơ hội (tuyệt đối không bịa ID hoặc tự đặt nhánh mới).
 - Mỗi cơ hội phải chọn đúng 1 nhánh.
-- Với mỗi nhánh được chọn, viết câu "reflection" ngắn (1-2 câu, bắt đầu bằng "Nếu chọn thì hôm đó tôi sẽ...").
-- Viết 1 câu "summary" đúc kết cho cả ngày với từng góc nhìn.
-- Trả về DUY NHẤT một JSON hợp lệ theo cấu trúc:
+- Xuất ra DUY NHẤT một JSON hợp lệ theo đúng cấu trúc sau (không kèm markdown giải thích):
 {
   "best": {
     "branch_selections": [
@@ -131,7 +139,7 @@ QUY TẮC BẮT BUỘC:
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				model: 'llama-3.3-70b-versatile',
+				model: 'qwen/qwen3.8-27b',
 				messages: [
 					{ role: 'system', content: systemPrompt },
 					{ role: 'user', content: `Dưới đây là các cơ hội và nhánh trong ngày ${dayData.date}:\n\n${opportunitiesPrompt}` }
