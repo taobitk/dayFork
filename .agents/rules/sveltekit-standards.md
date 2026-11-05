@@ -25,6 +25,18 @@
 - Tuân thủ cú pháp Svelte 5 runes (`$state`, `$derived`, `$props`).
 - Đối với các thao tác chọn nhanh, ưu tiên dùng Optimistic UI (cập nhật state hiển thị 0ms trước, revert nếu server trả về lỗi).
 
-## 4. Kiểm Thử & Triển Khai
+## 4. An Toàn Cơ Sở Dữ Liệu & Di Trú (D1 / SQLite Anti-Data Loss)
+- **Tuyệt đối không tự ý xóa data mồ côi**: Khi chuyển từ Single-user sang Multi-user, KHÔNG ĐƯỢC chạy lệnh xóa hàng loạt (`DELETE WHERE user_id IS NULL`). Phải hỏi người dùng để gán data cũ cho tài khoản mới (`UPDATE ... SET user_id = ?`) hoặc sao lưu trước.
+- **Thay đổi ràng buộc UNIQUE trong SQLite/D1**: SQLite không hỗ trợ `ALTER TABLE ... DROP/ADD CONSTRAINT UNIQUE`. Luôn áp dụng quy trình migrate: tạo bảng tạm `_new` -> chép dữ liệu -> drop bảng cũ -> đổi tên bảng mới.
+- **Thực thi migration từ xa**: Khi lệnh `wrangler d1 migrations apply --remote` gặp lỗi cấp quyền (7403), chuyển sang dùng lệnh chạy trực tiếp file SQL: `npx wrangler d1 execute <db> --remote --file=<path.sql>`.
+- **Cloudflare Pages Secrets**: Bất kỳ secret nào thêm qua `wrangler pages secret put` đều chỉ nạp vào Worker ở lần deploy kế tiếp. Luôn chạy lại quy trình build và deploy sau khi cập nhật secret.
+
+## 5. Xác Thực (Auth) & Chuẩn Kiểm Thử E2E Playwright
+- **Google Identity Services (GIS)**: Luôn khai báo `declare global { interface Window { google?: any; } }` trong `src/app.d.ts` để TypeScript không báo lỗi khi GIS gắn `window.google`.
+- **E2E Testing với Auth Gate**: Tuyệt đối không automate luồng đăng nhập thật trên giao diện Google OAuth (sẽ dính CAPTCHA/2FA). Cần seed trực tiếp user test và session test vào D1 (`users`, `sessions`), sau đó nạp cookie `session_id` qua `browserContext.addCookies()`.
+- **Tính Idempotent trong E2E**: Luôn đưa lệnh seed/upsert session test vào hook `test.beforeEach()` để kịch bản kiểm thử có thể chạy lặp lại liên tục mà không bị gãy khi có bước "Đăng xuất" (Logout).
+- **Windows PowerShell CLI**: Khi nối chuỗi nhiều lệnh terminal trên Windows PowerShell, luôn dùng dấu chấm phẩy `;` thay vì `&&` để tránh lỗi cú pháp parse.
+
+## 6. Kiểm Thử & Triển Khai
 - Luôn kiểm tra `npm run check` (0 errors, 0 warnings) và `npm run test:unit` trước khi deploy.
 - Sau khi deploy Cloudflare Pages, luôn chạy kiểm thử E2E Playwright trực tiếp trên production (`npx playwright test tests/live.e2e.ts`).
