@@ -1,7 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { execSync } from 'node:child_process';
 
 test.describe('DayFork Live Production E2E Suite', () => {
 	const BASE_URL = 'https://dayfork.pages.dev';
+
+	test.beforeEach(async () => {
+		// Ensure E2E test user & session exist in remote D1 before running tests
+		try {
+			execSync(
+				`npx wrangler d1 execute dayfork-db --remote --command="INSERT INTO users (id, google_id, email, name, picture, created_at) VALUES ('e2e-user', 'e2e-google-sub', 'e2e@dayfork.test', 'DayFork Tester', '', 1700000000000) ON CONFLICT(id) DO NOTHING; INSERT INTO sessions (id, user_id, expires_at) VALUES ('e2e-test-session', 'e2e-user', 2500000000000) ON CONFLICT(id) DO UPDATE SET expires_at = 2500000000000;"`,
+				{ stdio: 'ignore' }
+			);
+		} catch (err) {
+			console.error('Failed to seed e2e test session in D1:', err);
+		}
+	});
 
 	test('Full live user journey on Cloudflare Pages & D1 with Paper Map UI & other_text', async ({ page }) => {
 		page.on('console', (msg) => console.log('BROWSER LOG:', msg.text()));
